@@ -1,0 +1,13 @@
+config.php
+*.bak-*
+*.log
+logs/
+uploads/
+media/
+storage/
+tmp/
+cache/
+vendor/
+node_modules/
+session/
+*.sql

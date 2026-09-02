@@ -1,0 +1,9 @@
+LUNIFY ATLAS
+Copyright (c) 2025-2026 Lunify A.Ş. Tüm hakları saklıdır / All rights reserved.
+
+Bu yazılım ve kaynak kodu Lunify A.Ş.nin münhasır fikri mülkiyetidir (5846 sayılı FSEK).
+Yazılı izin olmadan kopyalanması, çoğaltılması, dağıtılması, kiralanması, kaynak koda
+dönüştürülmesi (reverse engineering) veya türev çalışma üretilmesi yasaktır.
+İhlal halinde hukuki ve cezai sorumluluk doğar.
+
+Iletisim: info@lunify.world
