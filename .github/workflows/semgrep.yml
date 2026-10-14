@@ -1,0 +1,37 @@
+name: Semgrep guvenlik taramasi
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1'
+permissions:
+  contents: read
+  issues: write
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Semgrep kur
+        run: pip install --quiet semgrep
+      - name: Tara
+        run: |
+          semgrep scan --metrics=off --config p/default --config p/php --config p/secrets \
+            --json-output=semgrep.json | tee semgrep.txt || true
+      - name: Rapor
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          N=$(python3 -c 'import json;print(len(json.load(open("semgrep.json"))["results"]))' 2>/dev/null || echo "?")
+          echo "Bulgu sayisi: $N" >> "$GITHUB_STEP_SUMMARY"
+          { echo "Son tarama: \`${GITHUB_SHA::7}\` - **$N bulgu**"; echo; echo '```'; head -c 60000 semgrep.txt; echo; echo '```'; } > body.md
+          gh label create semgrep --color B60205 --force >/dev/null 2>&1 || true
+          num=$(gh issue list --label semgrep --state open --json number -q '.[0].number')
+          if [ -n "$num" ]; then gh issue edit "$num" --body-file body.md; else gh issue create --title "Semgrep guvenlik taramasi" --label semgrep --body-file body.md; fi
