@@ -1,0 +1,159 @@
+/* Copyright (c) 2025-2026 Lunify A.S. Tum haklari saklidir / All rights reserved.
+   Ilan afisi sablonlari (T1..T4). Tum olculer em; #poster font-size genislige gore olceklenir. */
+#poster,.pst{width:var(--pw);height:var(--ph);background:#fff;overflow:hidden;position:relative;
+  font-family:Inter,"Segoe UI",Arial,Helvetica,sans-serif;transform-origin:top left;
+  font-size:calc(var(--pw) / 62.5);display:flex;flex-direction:column}
+#poster *,.pst *{box-sizing:border-box}
+.scr{font-family:"Segoe Script","Brush Script MT","Comic Sans MS",cursive;font-style:italic}
+.ph{background:#cbd5e1 center/cover no-repeat}
+.p-logo{position:absolute;right:1.5em;top:1.2em;max-width:12em;max-height:5em;z-index:5}
+
+/* ============ T1 · Klasik (sari/lacivert) ============ */
+.tpl1 .p-head{background:var(--dark);padding:1.6em 1.75em 1.1em;position:relative}
+.tpl1 .p-headrow{display:flex;gap:1.25em;align-items:flex-start}
+.tpl1 .p-ico svg{width:7.5em;height:7.5em}
+.tpl1 .p-kick{color:#fff;font-size:2.5em;font-weight:800;text-transform:uppercase;line-height:1.05}
+.tpl1 .p-title{color:var(--acc);font-size:5.75em;font-weight:900;line-height:.95;text-transform:uppercase;margin-top:.1em}
+.tpl1 .p-sub{display:inline-block;background:var(--pop);color:#fff;font-size:2.6em;font-weight:900;text-transform:uppercase;
+  padding:.24em .62em;border-radius:.19em;margin-top:.34em;transform:rotate(-1deg)}
+.tpl1 .p-badge{position:absolute;right:0;top:7.6em;background:var(--acc);color:var(--dark);font-weight:900;
+  font-size:1.9em;text-transform:uppercase;padding:.26em .72em;border-radius:.32em 0 0 .32em}
+.tpl1 .p-body{display:grid;grid-template-columns:1fr 16.1em;gap:.9em;padding:1em 1.75em 0;flex:1;min-height:0}
+.tpl1 .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:.62em;height:100%}
+.tpl1 .p-grid.n3{grid-template-columns:1fr 1fr 1fr}
+.tpl1 .p-grid .ph{border-radius:.38em;min-height:0}
+.tpl1 .ph.wide{grid-column:span 2}
+.tpl1 .p-side{background:var(--acc);border-radius:.62em;padding:.88em;display:flex;flex-direction:column;justify-content:center}
+.tpl1 .f{display:flex;gap:.75em;align-items:center;padding:.7em 0;border-bottom:2px solid rgba(0,0,0,.12)}
+.tpl1 .f:last-child{border-bottom:none}
+.tpl1 .f svg{width:2.1em;height:2.1em;flex:0 0 auto}
+.tpl1 .f span{font-size:1.44em;font-weight:800;color:var(--dark);text-transform:uppercase;line-height:1.12}
+.tpl1 .p-price{display:flex;align-items:center;gap:1.1em;margin:1.25em 1.75em 0}
+.tpl1 .p-pbox{background:var(--pop);color:#fff;border-radius:.62em;padding:.62em 1.4em .88em;transform:rotate(-1.2deg)}
+.tpl1 .p-only{font-size:2.4em;font-weight:900;text-transform:uppercase;line-height:1}
+.tpl1 .p-amt{font-size:5.25em;font-weight:900;line-height:.92}
+.tpl1 .p-amt small{font-size:.5em}
+.tpl1 .p-note{background:var(--acc);color:var(--dark);font-size:1.7em;font-weight:900;text-transform:uppercase;
+  padding:.4em .66em;border-radius:.36em;line-height:1.15;transform:rotate(1deg)}
+.tpl1 .p-foot{margin:1.1em 1.75em 1.5em;background:var(--dark);border-radius:.88em;padding:1em 1.5em;
+  display:flex;align-items:center;gap:1em;justify-content:center}
+.tpl1 .p-foot svg{width:2.9em;height:2.9em}
+.tpl1 .p-foot b{color:var(--acc);font-size:3.1em;font-weight:900}
+.tpl1 .p-foot i{color:#fff;font-size:2em;font-weight:800;font-style:normal;text-transform:uppercase}
+
+/* ============ T2 · Yesil kare (hero + ozellik listesi) ============ */
+.tpl2{background:#f6f7f2}
+.tpl2 .t2top{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.tpl2 .t2info{flex:1 1 auto}
+.tpl2 .t2hero{position:absolute;right:0;top:0;width:62%;height:100%}
+.tpl2 .t2fade{position:absolute;left:0;top:0;width:46%;height:100%;
+  background:linear-gradient(90deg,#f6f7f2 62%,rgba(246,247,242,0))}
+.tpl2 .t2info{position:relative;z-index:2;padding:1.6em 1.8em .6em;max-width:58%}
+.tpl2 .t2kick{display:inline-flex;align-items:center;gap:.4em;background:var(--dark);color:#fff;font-weight:900;
+  text-transform:uppercase;font-size:2.3em;padding:.3em .6em;border-radius:.3em}
+.tpl2 .t2kick svg{width:1em;height:1em}
+.tpl2 .t2title{color:var(--dark);font-size:5.2em;font-weight:900;line-height:.95;text-transform:uppercase;margin-top:.14em}
+.tpl2 .t2sub{color:var(--acc);font-size:3.3em;font-weight:700;margin-top:.05em;line-height:1.1}
+.tpl2 .t2rule{width:9em;height:.16em;background:var(--acc);margin:.5em 0 0;border-radius:1em}
+.tpl2 .t2feats{margin-top:.9em;max-width:22em}
+.tpl2 .t2f{display:flex;align-items:center;gap:.8em;padding:.38em 0;border-bottom:1px solid rgba(0,0,0,.12)}
+.tpl2 .t2f:last-child{border-bottom:none}
+.tpl2 .t2circ{flex:0 0 auto;width:2.4em;height:2.4em;border-radius:50%;background:var(--dark);
+  display:flex;align-items:center;justify-content:center}
+.tpl2 .t2circ svg{width:1.5em;height:1.5em;color:#fff}
+.tpl2 .t2f span{font-size:1.45em;font-weight:800;color:#1c2416;text-transform:uppercase;line-height:1.1}
+.tpl2 .t2seal{position:absolute;right:1.6em;top:1.4em;z-index:4;width:10.6em;height:10.6em;border-radius:50%;
+  background:var(--dark);border:.28em solid #fff;color:#fff;text-align:center;padding:1em .6em;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 .3em 1em rgba(0,0,0,.25)}
+.tpl2 .t2seal svg{width:2.4em;height:2.4em;color:#fff}
+.tpl2 .t2seal b{font-size:1.5em;font-weight:900;text-transform:uppercase;margin-top:.15em;line-height:1}
+.tpl2 .t2seal i{font-size:1em;font-style:normal;font-weight:700;text-transform:uppercase;line-height:1.15;margin-top:.25em}
+.tpl2 .t2slogan{position:relative;z-index:3;margin:0 2em 1.1em;text-align:center;flex:0 0 auto}
+.tpl2 .t2slogan span{display:inline-block;background:var(--acc);color:#fff;padding:.28em 1em;border-radius:.4em;
+  transform:rotate(-1.5deg);font-size:2.2em;font-weight:800;box-shadow:0 .1em .4em rgba(0,0,0,.15)}
+.tpl2 .t2strip{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:.8em;padding:1.1em 1.6em 1.1em;flex:0 0 auto}
+.tpl2 .t2strip .ph{height:11em;border-radius:.7em;border:.22em solid #fff;box-shadow:0 .2em .6em rgba(0,0,0,.18)}
+.tpl2 .t2foot{background:var(--dark);color:#fff;padding:1.1em 1.6em;display:flex;align-items:center;gap:1.2em;flex:0 0 auto}
+.tpl2 .t2foot svg{width:2.4em;height:2.4em;color:var(--acc)}
+.tpl2 .t2fl{display:flex;align-items:center;gap:.7em;flex:1;min-width:0}
+.tpl2 .t2fl b{font-size:2.2em;font-weight:900;text-transform:uppercase;display:block;line-height:1}
+.tpl2 .t2fl i{font-size:1.25em;font-style:normal;font-weight:600;line-height:1.25;display:block;opacity:.92}
+.tpl2 .t2phone{background:#f4efdd;color:var(--dark);border-radius:.6em;padding:.5em 1em;text-align:right;flex:0 0 auto}
+.tpl2 .t2phone em{display:block;font-style:normal;font-size:1.2em;font-weight:800;text-transform:uppercase}
+.tpl2 .t2phone b{display:block;font-size:2.9em;font-weight:900;line-height:1.05}
+
+/* ============ T3 · Koyu krem-gold dikey ============ */
+.tpl3{background:#f6ecdc}
+.tpl3 .t3top{position:relative;background:var(--dark);padding:2em 2em 2.2em;flex:0 0 auto;overflow:hidden}
+.tpl3 .t3hero{position:absolute;right:-2%;top:0;width:58%;height:100%;border-bottom-left-radius:60% 40%;
+  border-top-left-radius:14em}
+.tpl3 .t3info{position:relative;z-index:2;max-width:56%}
+.tpl3 .t3kick{color:var(--acc);font-size:3.1em;line-height:1.1}
+.tpl3 .t3title{color:#fff;font-size:5.4em;font-weight:900;text-transform:uppercase;line-height:.95;margin-top:.05em}
+.tpl3 .t3pill{display:inline-block;background:var(--acc);color:var(--dark);font-size:2.5em;font-weight:900;
+  text-transform:uppercase;padding:.22em .6em;border-radius:.24em;margin-top:.3em}
+.tpl3 .t3scr{color:#fff;font-size:3em;margin-top:.25em}
+.tpl3 .t3txt{color:#e8dcc8;font-size:1.5em;font-weight:600;line-height:1.35;margin-top:.8em;max-width:14em}
+.tpl3 .t3seal{position:relative;z-index:2;margin-top:1em;width:8.6em;height:8.6em;border-radius:50%;
+  background:var(--acc);color:var(--dark);display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:1em;padding:1em;font-weight:900;text-transform:uppercase;line-height:1.15;
+  box-shadow:0 0 0 .28em rgba(255,255,255,.35)}
+.tpl3 .t3seal span{font-size:1.25em}
+.tpl3 .t3band{background:var(--acc);color:var(--dark);text-align:center;font-size:2.1em;padding:.35em 1em;flex:0 0 auto}
+.tpl3 .t3cards{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:1em;padding:1.4em 1.6em 0;flex:0 0 auto}
+.tpl3 .t3card{background:#fff;border-radius:.7em;padding:.5em;box-shadow:0 .2em .7em rgba(0,0,0,.12)}
+.tpl3 .t3card .ph{height:11.5em;border-radius:.5em}
+.tpl3 .t3card b{display:block;text-align:center;font-size:1.45em;font-weight:900;text-transform:uppercase;
+  color:var(--dark);padding:.45em .2em .2em;line-height:1.1}
+.tpl3 .t3feats{display:grid;grid-template-columns:repeat(var(--nf,5),1fr);gap:.5em;padding:1.2em 1.2em;flex:1 1 auto;
+  align-content:center}
+.tpl3 .t3fi{text-align:center;padding:0 .3em;border-right:2px dotted rgba(0,0,0,.22)}
+.tpl3 .t3fi:last-child{border-right:none}
+.tpl3 .t3fi svg{width:3.1em;height:3.1em;color:var(--pop)}
+.tpl3 .t3fi span{display:block;font-size:1.3em;font-weight:900;text-transform:uppercase;color:var(--dark);
+  margin-top:.35em;line-height:1.15}
+.tpl3 .t3foot{display:grid;grid-template-columns:1fr 1fr;gap:1em;padding:0 1.4em 1.4em;flex:0 0 auto}
+.tpl3 .t3fbox{background:var(--dark);border-radius:1em;padding:1.1em 1.3em;color:#fff;display:flex;align-items:center;gap:.9em}
+.tpl3 .t3fbox svg{width:2.9em;height:2.9em;color:var(--acc)}
+.tpl3 .t3fbox i{font-style:normal;font-size:1.5em;font-weight:900;text-transform:uppercase;color:var(--acc);line-height:1.1}
+.tpl3 .t3fbox b{display:block;font-size:2.7em;font-weight:900;line-height:1.05}
+.tpl3 .t3loc svg{width:2em;height:2em;color:var(--pop)}
+.tpl3 .t3loc{background:#fff;border-radius:1em;padding:1.1em 1.3em;color:var(--dark);box-shadow:0 .2em .7em rgba(0,0,0,.1)}
+.tpl3 .t3loc em{font-style:normal;font-weight:900;text-transform:uppercase;font-size:1.4em;color:var(--pop)}
+.tpl3 .t3loc b{display:block;font-size:1.7em;font-weight:900;line-height:1.15}
+.tpl3 .t3loc span{display:block;font-size:1.3em;margin-top:.15em}
+
+/* ============ T4 · Lacivert-gold kare ============ */
+.tpl4{background:#f7f2ea}
+.tpl4 .t4top{position:relative;flex:0 0 auto;padding:1.8em 1.8em .8em;overflow:hidden}
+.tpl4 .t4hero{position:absolute;right:-4%;top:-6%;width:56%;height:118%;border-radius:50% 0 0 50%/50% 0 0 50%;
+  border-left:.3em solid var(--acc)}
+.tpl4 .t4info{position:relative;z-index:2;max-width:52%}
+.tpl4 .t4kick{color:var(--dark);font-size:2.6em;font-weight:900;text-transform:uppercase;line-height:1}
+.tpl4 .t4scr{color:var(--acc);font-size:3.4em;line-height:1.1;margin-top:.1em}
+.tpl4 .t4title{color:var(--dark);font-size:4.9em;font-weight:900;text-transform:uppercase;line-height:.95}
+.tpl4 .t4pill{display:inline-block;background:var(--acc);color:#fff;font-size:1.9em;max-width:100%;font-weight:900;
+  text-transform:uppercase;padding:.2em .6em;border-radius:.26em;margin-top:.25em}
+.tpl4 .t4feats{display:grid;grid-template-columns:1fr 1fr;gap:.4em 1em;margin-top:.9em}
+.tpl4 .t4f{display:flex;align-items:center;gap:.6em}
+.tpl4 .t4f svg{width:2.5em;height:2.5em;flex:0 0 auto;color:var(--dark)}
+.tpl4 .t4f span{font-size:1.35em;font-weight:900;text-transform:uppercase;color:var(--dark);line-height:1.1}
+.tpl4 .t4slogan{position:relative;z-index:2;margin:.8em 0 0}
+.tpl4 .t4slogan span{display:inline-block;background:var(--acc);color:#fff;font-size:2.2em;padding:.22em .8em;
+  border-radius:.4em;transform:rotate(-2deg)}
+.tpl4 .t4loc{position:absolute;right:2.2em;bottom:.6em;z-index:3;text-align:center;color:var(--dark);
+  background:rgba(247,242,234,.92);border-radius:.6em;padding:.4em .8em}
+.tpl4 .t4loc svg{width:2.2em;height:2.2em;color:var(--pop)}
+.tpl4 .t4loc i{display:block;font-style:normal;font-size:2.1em;font-family:"Segoe Script","Brush Script MT",cursive}
+.tpl4 .t4loc b{display:block;font-size:1.7em;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.tpl4 .t4cards{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:.9em;padding:.4em 1.8em 1em;flex:1 1 auto;
+  align-content:center}
+.tpl4 .t4card .ph{height:11em;border-radius:.7em;border:.2em solid #fff;box-shadow:0 .25em .7em rgba(0,0,0,.16)}
+.tpl4 .t4card b{display:block;text-align:center;background:var(--dark);color:#fff;font-size:1.35em;font-weight:900;
+  text-transform:uppercase;padding:.4em .3em;border-radius:.4em;margin-top:.45em;line-height:1.1}
+.tpl4 .t4foot{background:var(--dark);color:#fff;padding:1em 1.8em;display:flex;align-items:center;gap:1.4em;flex:0 0 auto}
+.tpl4 .t4foot svg{width:2.6em;height:2.6em;color:var(--acc)}
+.tpl4 .t4fl{display:flex;align-items:center;gap:.8em;flex:1;min-width:0}
+.tpl4 .t4fl i{font-style:normal;font-size:1.5em;font-weight:900;text-transform:uppercase;color:var(--acc);line-height:1.1;display:block}
+.tpl4 .t4fl b{display:block;font-size:2.9em;font-weight:900;line-height:1.05}
+.tpl4 .t4fr{text-align:right;font-size:1.9em;color:var(--acc);flex:0 0 auto;max-width:42%;line-height:1.2}

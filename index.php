@@ -6,8 +6,8 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-// Lunify Atlas — tanıtım (landing) sayfası
-session_start();
+// LUNAHAN — tanıtım (landing) sayfası
+require_once __DIR__ . '/includes/auth.php'; atlas_session();
 require_once __DIR__ . '/includes/i18n.php';
 $logged = !empty($_SESSION['uid']);
 $L = atlas_lang();
@@ -23,13 +23,26 @@ $signup = 'login.php?mode=up&lang=' . $L;
 <meta name="description" content="<?= htmlspecialchars(t('site_desc')) ?>">
 <meta property="og:title" content="<?= htmlspecialchars(t('site_title')) ?>">
 <meta property="og:description" content="<?= htmlspecialchars(t('site_desc')) ?>">
-<link rel="alternate" hreflang="tr" href="?lang=tr">
-<link rel="alternate" hreflang="en" href="?lang=en">
-<link rel="icon" href="assets/lunify-lockup.png">
+<link rel="canonical" href="https://lunahan.com.tr/">
+<link rel="alternate" hreflang="tr" href="https://lunahan.com.tr/?lang=tr">
+<link rel="alternate" hreflang="en" href="https://lunahan.com.tr/?lang=en">
+<link rel="alternate" hreflang="x-default" href="https://lunahan.com.tr/">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LUNAHAN">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/landing.css">
+<style>
+[data-theme="light"] .lg-dark,html:not([data-theme="dark"]) .lg-dark{display:none!important}
+[data-theme="dark"] .lg-light{display:none!important}
+@media(max-width:620px){.nav-in .btn-ghost{display:none!important}}
+</style>
 </head>
 <body>
 
@@ -37,11 +50,12 @@ $signup = 'login.php?mode=up&lang=' . $L;
   <div class="nav-in">
     <a class="brand" href="#top">
       <img class="logo" src="assets/lunify-lockup.png" alt="Lunify">
-      <span class="tag">ATLAS</span>
+      <span class="tag">LUNAHAN</span>
     </a>
     <nav class="nav-links" onclick="document.body.classList.remove('nav-open')">
       <a href="#neden"><?= t('nav_why') ?></a>
       <a href="#neler"><?= t('nav_what') ?></a>
+      <a href="#baglanti"><?= $L === 'tr' ? 'Bağlantılar' : 'Connections' ?></a>
       <a href="#nasil"><?= t('nav_how') ?></a>
       <a href="#fiyat"><?= t('nav_price') ?></a>
       <a href="#sss"><?= t('nav_faq') ?></a>
@@ -72,7 +86,7 @@ $signup = 'login.php?mode=up&lang=' . $L;
 
     <div class="reveal">
       <div class="phone">
-        <div class="phone-bar"><b>◆ Atlas</b><span><?= t('ph_now') ?></span></div>
+        <div class="phone-bar"><b>◆ LUNAHAN</b><span><?= t('ph_now') ?></span></div>
         <div class="phone-body">
           <div class="b me"><?= t('ph_me1') ?></div>
           <div class="b bot"><?= t('ph_bot1') ?><br><b>Mehmet Yılmaz</b> · +90 5•• ••• 44 21<br><i><?= t('ph_bot1_msg') ?></i><br><br><?= t('ph_bot1_ask') ?></div>
@@ -155,21 +169,35 @@ $signup = 'login.php?mode=up&lang=' . $L;
   </div>
 </section>
 
-<section id="emlak">
+<!-- 2026-09-09: emlak modulu tanitim bolumu kaldirildi (LUNAHAN sadece asistan; emlak = Lunify Anahtar) -->
+
+<!-- Baglantilar + dosya okuma bolumu (Viktor 2026-09-09) -->
+<section id="baglanti">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="mono"><?= t('mod_eyebrow') ?></span>
-      <h2><?= t('mod_h2') ?></h2>
-      <p><?= t('mod_p') ?></p>
+      <span class="mono"><?= $L === 'tr' ? 'TEK ASİSTAN, TÜM UYGULAMALARINIZ' : 'ONE ASSISTANT, ALL YOUR APPS' ?></span>
+      <h2><?= $L === 'tr' ? 'Dosyanızı okur, uygulamalarınıza bağlanır' : 'It reads your files and connects to your apps' ?></h2>
+      <p><?= $L === 'tr'
+        ? 'LUNAHAN sohbete eklediğiniz PDF, fotoğraf ve ses kaydını okur; Lunify uygulamalarınıza bağlanıp oradaki gerçek verinizle çalışır. Veriler bulunduğu uygulamada kalır, kopyalanmaz.'
+        : 'Add a PDF, a photo or a voice note to the chat and LUNAHAN reads it. Connect your Lunify apps and it works on your real data there — nothing is copied, data stays where it lives.' ?></p>
     </div>
     <div class="cards who4">
-      <?php foreach ([['🏠',1],['🤝',2],['⏰',3],['💬',4]] as [$ic,$i]): ?>
-        <div class="card-x reveal"><div class="ic"><?= $ic ?></div>
-          <h3><?= t("mod{$i}_h") ?></h3><p><?= t("mod{$i}_p") ?></p></div>
-      <?php endforeach; ?>
+      <div class="card-x reveal"><div class="ic">📎</div>
+        <h3><?= $L === 'tr' ? 'PDF ve teklif okur' : 'Reads PDFs and quotes' ?></h3>
+        <p><?= $L === 'tr' ? 'Teklifi, faturayı, sözleşmeyi yükleyin; içindeki firmayı, tutarı, tarihi çıkarır ve cevabını yazar.' : 'Upload a quote, invoice or contract; it pulls out the company, amounts and dates and drafts your reply.' ?></p></div>
+      <div class="card-x reveal"><div class="ic">📷</div>
+        <h3><?= $L === 'tr' ? 'Fotoğraftaki yazıyı çözer' : 'Reads text in photos' ?></h3>
+        <p><?= $L === 'tr' ? 'Dekont, kartvizit, el yazısı not — fotoğrafı atın, yazıyı okuyup kaydeder. Okunamıyorsa uydurmaz, söyler.' : 'Receipts, business cards, handwritten notes — send a photo and it reads and files the text. If it cannot read it, it says so instead of guessing.' ?></p></div>
+      <div class="card-x reveal"><div class="ic">🎤</div>
+        <h3><?= $L === 'tr' ? 'Sesli not yeter' : 'A voice note is enough' ?></h3>
+        <p><?= $L === 'tr' ? 'Yazmakla uğraşmayın: sesli söyleyin, LUNAHAN yazıya çevirip işi yapar.' : 'Skip the typing: say it out loud and LUNAHAN transcribes it and gets it done.' ?></p></div>
+      <div class="card-x reveal"><div class="ic">🔗</div>
+        <h3><?= $L === 'tr' ? 'Uygulamalarınıza bağlanır' : 'Connects to your apps' ?></h3>
+        <p><?= $L === 'tr' ? 'Anahtar, Aura, Nexo, Pulse — hesabınızdaki uygulamaya tek anahtarla bağlanır; ilanınızı, randevunuzu, müşterinizi oradan sorar. İstediğiniz an bağlantıyı kesersiniz.' : 'Anahtar, Aura, Nexo, Pulse — connect an app with a single key and ask about your listings, appointments or clients. Revoke the key any time.' ?></p></div>
     </div>
   </div>
 </section>
+
 
 <section id="nasil">
   <div class="wrap">
@@ -197,6 +225,10 @@ $signup = 'login.php?mode=up&lang=' . $L;
       <?php for ($i=1;$i<=4;$i++): ?>
         <div><span class="v">✓</span><p><b><?= t("tr{$i}_b") ?></b> <?= t("tr{$i}_p") ?></p></div>
       <?php endfor; ?>
+      <div><span class="v">✓</span><p><b><?= $L==='tr' ? 'Komutu yalnız kendi hattınızdan alır.' : 'It only takes commands from your own line.' ?></b> <?= $L==='tr' ? 'LUNAHAN, hesabınıza bağlı WhatsApp numarasından gelen mesajlara cevap verir; başka numaralar komut veremez.' : 'LUNAHAN answers messages from the WhatsApp number linked to your account; other numbers cannot issue commands.' ?></p></div>
+      <div><span class="v">✓</span><p><b><?= $L==='tr' ? 'Onay isteyen işlemler.' : 'Actions that need approval.' ?></b> <?= $L==='tr' ? 'Giden WhatsApp mesajı, e-posta, kişi kaydı ve dış servise yazan her işlem onayınızla yapılır. Arama, özet ve hatırlatma kurma onay istemez.' : 'Outgoing WhatsApp messages, emails, contact records and anything that writes to an external service require your approval. Searching, summarising and setting reminders do not.' ?></p></div>
+      <div><span class="v">✓</span><p><b><?= $L==='tr' ? 'Saklama ve silme.' : 'Retention and deletion.' ?></b> <?= $L==='tr' ? 'Konuşmalarınız hesabınız açık olduğu sürece saklanır; hesabı kapattığınızda en fazla 90 gün içinde silinir. Dilediğiniz zaman silme talep edebilirsiniz.' : 'Your conversations are kept while your account is active and deleted within 90 days of closing it. You can request deletion at any time.' ?></p></div>
+      <div><span class="v">✓</span><p><b><?= $L==='tr' ? 'Bağlantıyı tek tıkla kaldırın.' : 'Disconnect in one click.' ?></b> <?= $L==='tr' ? 'Google (Gmail/Takvim) iznini panelden veya Google Hesap → Güvenlik → Üçüncü taraf erişimi üzerinden; WhatsApp bağlantısını telefonunuzdan Bağlı cihazlar → çıkar ile kaldırabilirsiniz.' : 'Revoke Google (Gmail/Calendar) access from the panel or in Google Account → Security → Third-party access; remove the WhatsApp link from your phone via Linked devices → log out.' ?></p></div>
     </div>
   </div>
 </section>
@@ -263,14 +295,18 @@ $signup = 'login.php?mode=up&lang=' . $L;
 <footer>
   <div class="wrap foot">
     <div>
-      <div class="brand" style="margin-bottom:10px"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify" style="height:34px"><span class="tag">ATLAS</span></div>
+      <div class="brand" style="margin-bottom:10px"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify" style="height:34px"><span class="tag">LUNAHAN</span></div>
       <div><?= t('ft_part') ?></div>
     </div>
     <div>
       <div style="margin-bottom:6px"><b style="color:var(--ink)"><?= t('ft_other') ?></b></div>
-      <div><a href="https://nexo.lunify.world">Nexo</a> · <a href="https://aura.lunify.world">Aura</a> · <a href="https://pulse.lunify.world">Pulse</a></div>
+      <div><a href="https://lunahan.com.tr">LUNAHAN</a></div>
     </div>
-    <div>© <?= date('Y') ?> Lunify A.Ş. <?= t('ft_rights') ?></div>
+    <div>
+      <div style="margin-bottom:6px"><a href="/privacy.php"><?= $L==='tr' ? 'KVKK Aydınlatma Metni' : 'Privacy notice' ?></a> · <a href="/cerezler.php"><?= $L==='tr' ? 'Çerezler' : 'Cookies' ?></a></div>
+      <div style="margin-bottom:6px">Lunify Yazılım ve Ticaret A.Ş. · Denizli / Türkiye · <a href="mailto:info@lunify.world">info@lunify.world</a></div>
+      <div>© <?= date('Y') ?> Lunify Yazılım ve Ticaret A.Ş. <?= t('ft_rights') ?></div>
+    </div>
   </div>
 </footer>
 
@@ -280,3 +316,4 @@ document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 </script>
 </body>
 </html>
+

@@ -6,20 +6,22 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Lunify Atlas — EMLAK MODÜLÜ (sektör modülü #1)
+/* LUNAHAN — EMLAK MODÜLÜ (sektör modülü #1)
    Modül kullanıcı bazlıdır: settings[k='mod_realestate']='1' ise açıktır.
    Portföy (re_listings) + müşteri talebi (re_leads) + otomatik eşleştirme + takip. */
 
+require_once __DIR__ . '/mod_realestate_valuation.php';   // arazi/parsel degerleme (TKGM + emsal havuzu)
+
 function re_enabled(?int $uid = null): bool {
   $uid = $uid ?: atlas_uid();
-  /* 2026-08-31: modul TUM uyelerde STANDART ACIK. Sadece acikca '0' yazilirsa kapanir. */
+  /* 2026-09-09 (sahip karari): LUNAHAN SADECE genel asistan. Emlak modulu VARSAYILAN KAPALI.
+     Yalnizca settings[k='mod_realestate']='1' yazilan kullanicida acilir. Emlak urunu = Lunify Anahtar. */
   try {
     $s = db()->prepare("SELECT v FROM settings WHERE user_id=? AND k='mod_realestate'");
     $s->execute([$uid]);
     $v = $s->fetchColumn();
-    if ($v === false || $v === null || trim((string)$v) === '') return true;
-    return trim((string)$v) !== '0';
-  } catch (Throwable $e) { return true; }
+    return trim((string)$v) === '1';
+  } catch (Throwable $e) { return false; }
 }
 
 function re_norm(string $s): string {
@@ -423,7 +425,11 @@ function re_tools(): array {
   ];
 }
 
+function re_tools_all(): array { return array_merge(re_tools(), rv_tools()); }
+
 function re_run_tool(string $name, array $args): ?string {
+  $rv = rv_run_tool($name, $args);
+  if ($rv !== null) return $rv;
   switch ($name) {
     case 're_add_listing':    return re_tool_add_listing($args);
     case 're_list_listings':  return re_tool_list_listings($args);

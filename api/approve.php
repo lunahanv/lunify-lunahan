@@ -10,10 +10,16 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/gmail.php';
 header('Content-Type: application/json; charset=utf-8');
+$rawDecision = $_POST['decision'] ?? null;
+if (!is_string($rawDecision) || !in_array($rawDecision, ['approve', 'reject'], true)) {
+  http_response_code(400);
+  echo json_encode(['error'=>'geçersiz karar'], JSON_UNESCAPED_UNICODE);
+  exit;
+}
+$decision = $rawDecision;
 $u = require_login_api();
 
 $id = (int)($_POST['id'] ?? 0);
-$decision = $_POST['decision'] ?? '';
 $s = db()->prepare('SELECT * FROM actions WHERE id=? AND user_id=?'); $s->execute([$id, $u['id']]); $act = $s->fetch();
 if (!$act) { echo json_encode(['error'=>'bulunamadı']); exit; }
 

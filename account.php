@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — hesabım, paketim, abonelik */
+/** LUNAHAN — hesabım, paketim, abonelik */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = preg_replace('/[^a-z_]/', '', $_POST['plan'] ?? '');
     db()->prepare('INSERT INTO subscription_log(user_id,plan_code,action,note) VALUES(?,?,\'request\',?)')
        ->execute([$u['id'], $code, 'panelden talep']);
-    @atlas_send_mail(SMTP_FROM, 'Atlas — paket talebi',
+    @atlas_send_mail(SMTP_FROM, 'LUNAHAN — paket talebi',
       '<p><b>' . htmlspecialchars($u['email']) . '</b> "' . htmlspecialchars($code) . '" paketini talep etti.</p>');
     $msg = t('acc_req_sent');
   } elseif (($_POST['act'] ?? '') === 'pass') {

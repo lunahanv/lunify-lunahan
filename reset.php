@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $row) {
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/app.css"></head><body class="login-bg">
 <div class="login-card">
-  <div class="brand"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify"><span class="tag">Atlas</span></div>
+  <div class="brand"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify"><span class="tag">LUNAHAN</span></div>
   <?php if (!$row): ?>
     <div class="err"><?= t('rs_bad') ?></div>
     <a class="back" href="login.php?mode=forgot&lang=<?= $L ?>"><?= t('login_forgot') ?></a>
@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $row) {
     <p class="muted"><?= htmlspecialchars($row['email']) ?></p>
     <?php if ($err) echo '<div class="err">'.$err.'</div>'; ?>
     <form method="post">
+      <input type="hidden" name="_csrf" value="<?= htmlspecialchars(atlas_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
       <input type="password" name="password" placeholder="<?= t('rs_new') ?>" required minlength="8" autofocus>
       <button type="submit"><?= t('rs_btn') ?></button>

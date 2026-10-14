@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-// Atlas — WhatsApp köprüsü durum/çıkış vekili (panel için)
+// LUNAHAN — WhatsApp köprüsü durum/çıkış vekili (panel için)
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 header('Content-Type: application/json; charset=utf-8');
@@ -30,7 +30,8 @@ function wa_call(string $path, string $method = 'GET'): array {
   return is_array($j) ? $j : ['status' => 'offline'];
 }
 
-$action = $_GET['action'] ?? 'status';
+$action = $_GET['action'] ?? $_POST['action'] ?? 'status';
+if (in_array($action, ['contacts','import_contacts','logout'], true) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); echo json_encode(['error'=>'method not allowed']); exit; }
 
 /** WhatsApp rehberini köprüden çeker. */
 function wa_contacts(): array {

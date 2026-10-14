@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — Google Takvim + Görevler (Gmail ile aynı OAuth bağlantısını kullanır). */
+/* LUNAHAN — Google Takvim + Görevler (Gmail ile aynı OAuth bağlantısını kullanır). */
 require_once __DIR__ . '/gmail.php';
 
 function google_api(string $url, array $body = null, string $method = 'GET') {
@@ -148,7 +148,7 @@ function gcal_reminder_event(string $title, string $dueLocal, string $existingId
   $tz = gcal_tz();
   $body = [
     'summary'     => '⏰ ' . $title,
-    'description' => 'Atlas hatırlatması',
+    'description' => 'LUNAHAN hatırlatması',
     'start'       => ['dateTime'=>date('c', $ts), 'timeZone'=>$tz],
     'end'         => ['dateTime'=>date('c', $ts + 600), 'timeZone'=>$tz],
     'reminders'   => ['useDefault'=>false, 'overrides'=>[['method'=>'popup','minutes'=>0]]],
@@ -170,10 +170,10 @@ function atlas_build_ics(string $title, string $dueLocal): string {
   $fmt = fn(int $t) => gmdate('Ymd\\THis\\Z', $t);
   $esc = fn(string $s) => str_replace([chr(92), ';', ',', "\n"], [chr(92).chr(92), chr(92).';', chr(92).',', chr(92).'n'], $s);
   return implode("\r\n", [
-    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Lunify Atlas//TR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+    'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//LUNAHAN//TR', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
     'BEGIN:VEVENT', 'UID:' . $uid, 'DTSTAMP:' . $fmt(time()),
     'DTSTART:' . $fmt($ts), 'DTEND:' . $fmt($ts + 600),
-    'SUMMARY:' . $esc('⏰ ' . $title), 'DESCRIPTION:' . $esc('Atlas hatırlatması'),
+    'SUMMARY:' . $esc('⏰ ' . $title), 'DESCRIPTION:' . $esc('LUNAHAN hatırlatması'),
     'BEGIN:VALARM', 'TRIGGER:-PT1M', 'ACTION:DISPLAY', 'DESCRIPTION:' . $esc($title), 'END:VALARM',
     'END:VEVENT', 'END:VCALENDAR', '']);
 }

@@ -7,7 +7,7 @@
  */
 
 /**
- * Lunify Atlas — Baslangic Rehberi / Getting Started
+ * LUNAHAN — Baslangic Rehberi / Getting Started
  * Nexo & Pulse ile ayni mantik: kullanici bazli kontrol listesi, durum `settings`
  * tablosunda tutulur, sema degisikligi yok.  (Viktor, 2026-08-28)
  *
@@ -50,22 +50,22 @@ function ob_steps(): array {
         [
             'key' => 'wa', 'url' => 'wa.php', 'icon' => 'message-circle',
             'title' => ob_t('Connect your WhatsApp line', 'WhatsApp hattınızı bağlayın'),
-            'desc'  => ob_t('Scan the QR code once; then you can talk to Atlas from WhatsApp, from your own number.',
-                            'QR kodu bir kez okutun; sonra Atlas ile kendi numaranızdan WhatsApp üzerinden konuşun.'),
+            'desc'  => ob_t('Scan the QR code once; then you can talk to LUNAHAN from WhatsApp, from your own number.',
+                            'QR kodu bir kez okutun; sonra LUNAHAN ile kendi numaranızdan WhatsApp üzerinden konuşun.'),
             'done'  => fn() => ob_has_setting('wa_owner'),
         ],
         [
             'key' => 'contacts', 'url' => 'contacts.php', 'icon' => 'users',
             'title' => ob_t('Fill your contact list', 'Rehberinizi doldurun'),
-            'desc'  => ob_t('Add people by hand or import your WhatsApp contacts in one click — Atlas needs them to message or e-mail anyone.',
-                            'Kişileri elle ekleyin ya da WhatsApp rehberinizi tek tıkla aktarın — Atlas mesaj/mail gönderirken burayı kullanır.'),
+            'desc'  => ob_t('Add people by hand or import your WhatsApp contacts in one click — LUNAHAN needs them to message or e-mail anyone.',
+                            'Kişileri elle ekleyin ya da WhatsApp rehberinizi tek tıkla aktarın — LUNAHAN mesaj/mail gönderirken burayı kullanır.'),
             'done'  => fn() => ob_count('contacts') > 0,
         ],
         [
             'key' => 'gmail', 'url' => 'gmail.php', 'icon' => 'mail',
             'title' => ob_t('Connect Gmail, Calendar and Tasks', 'Gmail, Takvim ve Görevler’i bağlayın'),
-            'desc'  => ob_t('One Google sign-in lets Atlas read and send mail, see your calendar and manage tasks.',
-                            'Tek bir Google izniyle Atlas mailinizi okur/gönderir, takviminizi görür ve görevlerinizi yönetir.'),
+            'desc'  => ob_t('One Google sign-in lets LUNAHAN read and send mail, see your calendar and manage tasks.',
+                            'Tek bir Google izniyle LUNAHAN mailinizi okur/gönderir, takviminizi görür ve görevlerinizi yönetir.'),
             'done'  => fn() => ob_has_setting('gmail_refresh_token'),
         ],
         [
@@ -77,16 +77,16 @@ function ob_steps(): array {
         ],
         [
             'key' => 'memory', 'url' => 'app.php', 'icon' => 'brain',
-            'title' => ob_t('Teach Atlas about you', 'Atlas’a kendinizi tanıtın'),
-            'desc'  => ob_t('“Remember: my company is …, I write in Turkish, my working hours are …” — Atlas keeps these facts.',
-                            '“Şunu hatırla: firmam …, Türkçe yazarım, mesai saatlerim …” — Atlas bu bilgileri saklar.'),
+            'title' => ob_t('Teach LUNAHAN about you', 'LUNAHAN’a kendinizi tanıtın'),
+            'desc'  => ob_t('“Remember: my company is …, I write in Turkish, my working hours are …” — LUNAHAN keeps these facts.',
+                            '“Şunu hatırla: firmam …, Türkçe yazarım, mesai saatlerim …” — LUNAHAN bu bilgileri saklar.'),
             'done'  => fn() => ob_count('memories') > 0,
         ],
         [
             'key' => 'guide', 'url' => 'guide.php', 'icon' => 'book-open',
             'title' => ob_t('Skim the user guide', 'Kullanım kılavuzuna göz atın'),
-            'desc'  => ob_t('Ten short sections with screenshots — what Atlas can do and how to ask for it.',
-                            'Ekran görüntülü on kısa bölüm — Atlas neler yapar, nasıl istenir.'),
+            'desc'  => ob_t('Ten short sections with screenshots — what LUNAHAN can do and how to ask for it.',
+                            'Ekran görüntülü on kısa bölüm — LUNAHAN neler yapar, nasıl istenir.'),
             'done'  => fn() => setting('ob_guide_seen', '') === '1',
         ],
         [
@@ -120,6 +120,9 @@ function ob_mark(string $k): void { if (setting($k, '') !== '1') set_setting($k,
 
 /** Sol menude "Başlangıç" maddesi gorunsun mu? */
 function ob_show_nav(string $active = ''): bool {
+    /* 2026-09-09: adminlerde baslangic rehberi gosterilmez (sahip istegi). */
+    $__u = function_exists('current_user') ? current_user() : null;
+    if ($__u && !empty($__u['is_admin'])) return false;
     if ($active === 'start') return true;
     if (ob_is_hidden()) return false;
     [, $done, $total] = ob_progress();
@@ -145,13 +148,13 @@ function ob_render_welcome(): void {
     $hello = $tr ? ('Hoş geldiniz' . ($name !== '' ? ', ' . $name : '') . '!')
                  : ('Welcome' . ($name !== '' ? ', ' . $name : '') . '!');
     $items = $tr ? [
-        ['Bağlayın', 'WhatsApp hattınızı ve Google hesabınızı bağlayın — Atlas sizin adınıza yazsın.'],
-        ['Tanıtın', 'Rehberinizi aktarın, Atlas’a kendinizden bahsedin; sizi tanıdıkça isabetli çalışır.'],
+        ['Bağlayın', 'WhatsApp hattınızı ve Google hesabınızı bağlayın — LUNAHAN sizin adınıza yazsın.'],
+        ['Tanıtın', 'Rehberinizi aktarın, LUNAHAN’a kendinizden bahsedin; sizi tanıdıkça isabetli çalışır.'],
         ['İş yaptırın', 'Hatırlatma, araştırma, mail taslağı, WhatsApp mesajı — düz cümleyle isteyin.'],
-        ['Her yerden', 'Panelden ya da WhatsApp’tan; Atlas aynı hafızayla cevap verir.'],
+        ['Her yerden', 'Panelden ya da WhatsApp’tan; LUNAHAN aynı hafızayla cevap verir.'],
     ] : [
-        ['Connect', 'Link your WhatsApp line and Google account so Atlas can act for you.'],
-        ['Introduce', 'Import your contacts and tell Atlas about yourself — context makes it accurate.'],
+        ['Connect', 'Link your WhatsApp line and Google account so LUNAHAN can act for you.'],
+        ['Introduce', 'Import your contacts and tell LUNAHAN about yourself — context makes it accurate.'],
         ['Delegate', 'Reminders, research, e-mail drafts, WhatsApp messages — just ask in plain words.'],
         ['Anywhere', 'From the panel or from WhatsApp — same assistant, same memory.'],
     ];
@@ -194,8 +197,8 @@ function ob_render(string $mode = 'page'): void {
             <?= htmlspecialchars($allDone
                 ? ($tr ? 'Tüm başlangıç adımlarını bitirdiniz. Detaylar için Kılavuz’a bakabilirsiniz.'
                        : 'You have finished every setup step. See the Guide for details.')
-                : ($tr ? 'Atlas’ı tam kapasite kullanmak için şu adımları tamamlayın — her biri 1-2 dakika.'
-                       : 'Finish these steps to get the most out of Atlas — each takes 1-2 minutes.')) ?>
+                : ($tr ? 'LUNAHAN’ı tam kapasite kullanmak için şu adımları tamamlayın — her biri 1-2 dakika.'
+                       : 'Finish these steps to get the most out of LUNAHAN — each takes 1-2 minutes.')) ?>
           </p>
         </div>
         <div class="text-right shrink-0">

@@ -6,8 +6,8 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — Google Kişiler (People API) entegrasyonu.
-   Amaç: Atlas rehberine eklenen kişiyi kullanıcının GOOGLE hesabına da yazmak;
+/* LUNAHAN — Google Kişiler (People API) entegrasyonu.
+   Amaç: LUNAHAN rehberine eklenen kişiyi kullanıcının GOOGLE hesabına da yazmak;
    böylece kişi Android/iPhone'daki gerçek telefon rehberinde otomatik görünür.
    Viktor 2026-08-30. */
 require_once __DIR__ . '/db.php';

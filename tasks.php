@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — onay kuyrugu + hatirlaticilar */
+/** LUNAHAN — onay kuyrugu + hatirlaticilar */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';

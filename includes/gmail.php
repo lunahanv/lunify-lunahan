@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — Gmail (OAuth2) entegrasyonu. Kimlik bilgileri settings tablosunda tutulur. */
+/* LUNAHAN — Gmail (OAuth2) entegrasyonu. Kimlik bilgileri settings tablosunda tutulur. */
 require_once __DIR__ . '/db.php';
 
 function gmail_redirect_uri(): string { return rtrim(APP_URL, '/') . '/gmail-callback.php'; }
@@ -37,7 +37,7 @@ function gmail_auth_url(): string {
     'client_id' => gmail_cfg('client_id'),
     'redirect_uri' => gmail_redirect_uri(),
     'response_type' => 'code',
-    'scope' => 'https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/contacts https://www.googleapis.com/auth/userinfo.email',
+    'scope' => 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/contacts https://www.googleapis.com/auth/userinfo.email',
     'access_type' => 'offline',
     'prompt' => 'consent',
   ]);

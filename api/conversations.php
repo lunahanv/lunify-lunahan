@@ -6,13 +6,14 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — sohbet (konusma) listesi: listele / mesajlari getir / yeni / yeniden adlandir / sil */
+/** LUNAHAN — sohbet (konusma) listesi: listele / mesajlari getir / yeni / yeniden adlandir / sil */
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 header('Content-Type: application/json; charset=utf-8');
 $u = require_login_api();
 $uid = (int)$u['id'];
 $act = $_GET['action'] ?? $_POST['action'] ?? 'list';
+if (in_array($act, ['new','rename','delete'], true) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') { http_response_code(405); echo json_encode(['ok'=>false,'error'=>'method not allowed']); exit; }
 
 function conv_owned(int $id, int $uid): bool {
   $s = db()->prepare('SELECT 1 FROM conversations WHERE id=? AND user_id=?');

@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — Google Drive (Gmail ile ayni OAuth baglantisini kullanir). */
+/* LUNAHAN — Google Drive (Gmail ile ayni OAuth baglantisini kullanir). */
 require_once __DIR__ . '/gmail.php';
 require_once __DIR__ . '/google.php';
 

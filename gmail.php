@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-// Atlas — Gmail bağlantı sayfası
+// LUNAHAN — Gmail bağlantı sayfası
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -22,10 +22,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['client_id']) && $is_a
   set_setting('gmail_client_secret', trim($_POST['client_secret'] ?? ''));
   header('Location: gmail.php?saved=1'); exit;
 }
-if (isset($_GET['disconnect'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['disconnect'])) {
+  /* Baglantiyi keserken tokeni Google'da da GERCEKTEN iptal et (Google dogrulama sarti).
+     Viktor 2026-09-10 */
+  $rt = (string)setting('gmail_refresh_token', '');
+  $at = (string)setting('gmail_access_token', '');
+  $tok = $rt !== '' ? $rt : $at;
+  if ($tok !== '') {
+    $ch = curl_init('https://oauth2.googleapis.com/revoke');
+    curl_setopt_array($ch, [CURLOPT_RETURNTRANSFER=>true, CURLOPT_POST=>true, CURLOPT_TIMEOUT=>15,
+      CURLOPT_POSTFIELDS=>http_build_query(['token'=>$tok])]);
+    $rr = curl_exec($ch); $rc = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE); curl_close($ch);
+    if ($rc !== 200) error_log('[gmail-revoke] http ' . $rc . ' ' . substr((string)$rr, 0, 200));
+  }
   foreach (['refresh_token','access_token','expires_at','address','scopes'] as $k) set_setting('gmail_' . $k, '');
-  header('Location: gmail.php'); exit;
+  header('Location: gmail.php?disconnected=1'); exit;
 }
+if (isset($_GET['disconnect'])) { http_response_code(405); exit; }
 if (isset($_GET['connect'])) { header('Location: ' . gmail_auth_url()); exit; }
 if (isset($_GET['oauth']) && $_GET['oauth'] === 'cb') {
   // Post/Redirect/Get: yetki kodu TEK KULLANIMLIK. Sayfa yenilenince ayni kod
@@ -64,7 +77,7 @@ if (!empty($_SESSION['gmail_msg'])) { $msg = $_SESSION['gmail_msg']; unset($_SES
 $cid = gmail_cfg('client_id'); $sec = gmail_cfg('client_secret');
 $connected = gmail_ready();
 $addr = $connected ? gmail_address() : '';
-atlas_header('Google', 'gmail', 'Atlas\'ın e-postalarını, takvimini, görevlerini ve Drive dosyalarını yönetebilmesi için Google hesabını bağla.');
+atlas_header('Google', 'gmail', 'LUNAHAN\'ın e-postalarını, takvimini, görevlerini ve Drive dosyalarını yönetebilmesi için Google hesabını bağla.');
 ?>
 <style>
 .atlas-page .sub{color:#6b7280;font-size:13px;margin-bottom:14px}
@@ -88,9 +101,9 @@ atlas_header('Google', 'gmail', 'Atlas\'ın e-postalarını, takvimini, görevle
         <p style="margin-top:10px"><span class="st wait"><?= (!gmail_has_drive() && !gmail_has_contacts()) ? 'Drive ve Kişiler izni eksik' : (!gmail_has_drive() ? 'Google Drive izni eksik' : 'Google Kişiler izni eksik') ?></span><br>
         <span class="sub">Drive dosyalarını düzenleyebilmesi ve kişileri telefon rehberine (Google Kişiler) kaydedebilmesi için bağlantıyı bir kez yenile.</span></p>
         <p><a class="btn" href="?connect=1">İzinleri yenile</a>
-           <a class="btn grey" href="?disconnect=1">Bağlantıyı kaldır</a></p>
+           <form method="post" class="inline"><input type="hidden" name="disconnect" value="1"><button type="submit" class="btn grey" style="border:0;cursor:pointer">Bağlantıyı kaldır</button></form></p>
       <?php else: ?>
-        <p><a class="btn grey" href="?disconnect=1">Bağlantıyı kaldır</a></p>
+        <p><form method="post" class="inline"><input type="hidden" name="disconnect" value="1"><button type="submit" class="btn grey" style="border:0;cursor:pointer">Bağlantıyı kaldır</button></form></p>
       <?php endif; ?>
     <?php elseif ($cid && $sec): ?>
       <span class="st wait">Kimlik kayıtlı — izin verilmesi bekleniyor</span>
@@ -123,9 +136,9 @@ atlas_header('Google', 'gmail', 'Atlas\'ın e-postalarını, takvimini, görevle
 <div class="acard">
   <h3 style="text-transform:none;font-size:16px;color:inherit">Nasıl alınır (5 dakika)</h3>
   <ol>
-    <li><a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> → üstten yeni proje oluştur (ör. "Atlas")</li>
+    <li><a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> → üstten yeni proje oluştur (ör. "LUNAHAN")</li>
     <li>Arama kutusuna <b>Gmail API</b> yaz → <b>Enable</b>; aynı şekilde <b>Google Drive API</b>, <b>Calendar API</b> ve <b>Tasks API</b>'yi de etkinleştir</li>
-    <li>Sol menü → <b>APIs &amp; Services → OAuth consent screen</b> → External → uygulama adı "Atlas", destek e-postan → kaydet → <b>Test users</b> kısmına kendi Gmail adresini ekle</li>
+    <li>Sol menü → <b>APIs &amp; Services → OAuth consent screen</b> → External → uygulama adı "LUNAHAN", destek e-postan → kaydet → <b>Test users</b> kısmına kendi Gmail adresini ekle</li>
     <li>Sol menü → <b>Credentials → Create credentials → OAuth client ID</b> → tip: <b>Web application</b></li>
     <li><b>Authorized redirect URIs</b> → <code><?= htmlspecialchars(gmail_redirect_uri()) ?></code> ekle → Create</li>
     <li>Çıkan <b>Client ID</b> ve <b>Client secret</b>'i yukarıdaki kutulara yapıştır → Kaydet → <b>Google ile bağlan</b></li>

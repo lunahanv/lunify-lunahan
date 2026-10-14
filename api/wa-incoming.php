@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — WhatsApp köprüsünden gelen mesaj: agent'ı çalıştır, cevabı döndür. */
+/* LUNAHAN — WhatsApp köprüsünden gelen mesaj: agent'ı çalıştır, cevabı döndür. */
 require_once __DIR__ . '/../includes/agent.php';
 header('Content-Type: application/json; charset=utf-8');
 
@@ -42,12 +42,12 @@ if (!$isSelf && ($me === '' || $sender !== $me)) {
      Istisna: wa_owner ayarinda numara(lar) tanimliysa o numaralar da yazabilir (admin icin). */
   if (!$owners || !in_array($sender, $owners, true)) { echo json_encode(['reply' => '']); exit; }
 }
-/* --- Ortak bot yonlendirme isareti (Atlas <-> Luna ayni WhatsApp hattinda) ---
+/* --- Ortak bot yonlendirme isareti (LUNAHAN <-> Luna ayni WhatsApp hattinda) ---
    Bilgehan 2026-08-28: onek sadece BOTU DEGISTIRMEK icin gerekli. Son 10 dakika
    icinde hangi bot konustuysa oneksiz mesaj ona gider (ornek: "Yolla"). */
 
 if (!function_exists('lunify_wa_active')) {
-  function lunify_wa_active_file(): string { return '/var/tmp/lunify-wa-active.json'; }
+  function lunify_wa_active_file(): string { return '/var/tmp/lunify-wa-active-lunahan.json'; }
   function lunify_wa_active(int $ttl = 600): string {
     $f = lunify_wa_active_file();
     if (!is_file($f)) return '';
@@ -68,7 +68,7 @@ if (preg_match('/^\s*(atlas|@atlas)\b[\s,:!\-]*(.*)$/isu', $text, $mAtl)) {
   lunify_wa_claim('atlas');
 } else {
   /* 2026-08-29 kullanici karari: Luna WhatsApp'tan kaldirildi, artik onek SART DEGIL.
-     Hattin sahibi kendine ne yazarsa Atlas cevaplar. */
+     Hattin sahibi kendine ne yazarsa LUNAHAN cevaplar. */
   lunify_wa_claim('atlas');
 }
 
@@ -115,7 +115,7 @@ if (strpos($text, '[KISI_KARTI]') !== false) {
   $text = trim($note . ($rest ? "\n[Kullanıcının notu: " . implode(' ', $rest) . ']' : ''));
 }
 
-$out = atlas_process($text, 'tr');
+$out = atlas_process($text, 'tr', (int)$wauid);
 
 $upd = db()->prepare('UPDATE commands SET agent_reply=?, tools_json=?, status=\'done\' WHERE id=?');
 $upd->execute([$out['reply'], json_encode($out['tools'], JSON_UNESCAPED_UNICODE), $cid]);

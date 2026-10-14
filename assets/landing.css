@@ -131,7 +131,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;color:var(--muted);font-s
 .lang-sw a.on{background:linear-gradient(120deg,var(--violet),var(--violet-2));color:#fff}
 @media(max-width:560px){.lang-sw a{padding:6px 9px;font-size:9.5px}}
 
-/* --- 2026-08-28: "Neden Atlas" karsilastirma, kimler icin, SSS --- */
+/* --- 2026-08-28: "Neden LUNAHAN" karsilastirma, kimler icin, SSS --- */
 .cards.why3{grid-template-columns:repeat(3,1fr)}
 .cards.who4{grid-template-columns:repeat(4,1fr)}
 .pullquote{max-width:860px;margin:40px auto 8px;text-align:center;font-family:'Cormorant Garamond',serif;

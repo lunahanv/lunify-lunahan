@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Atlas — WhatsApp koprusu saglik ucu (izleme icin). */
+/* LUNAHAN — WhatsApp koprusu saglik ucu (izleme icin). */
 require_once __DIR__ . '/../config.php';
 header('Content-Type: application/json; charset=utf-8');
 $key = $_GET['key'] ?? $_POST['key'] ?? '';

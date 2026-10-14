@@ -1,0 +1,90 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "1 - IS VER (yaz, ajan test kopyasinda yapsin)",
+      "type": "shell",
+      "command": "cd /opt/coder/work/${input:uygulama} && /opt/coder/.opencode/bin/opencode run \"${input:istek}\"",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "2 - TESTI AC (adresi goster)",
+      "type": "shell",
+      "command": "echo; echo \"  >>> https://test-${input:uygulama}.lunify.world\"; echo",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "3 - CANLIYA AL",
+      "type": "shell",
+      "command": "sudo /usr/local/bin/lunify-deploy ${input:uygulama}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "4 - GERI AL (canliyi son yedege dondur)",
+      "type": "shell",
+      "command": "sudo /usr/local/bin/lunify-rollback ${input:uygulama}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "5 - TESTI SIFIRLA (canlidan tazele)",
+      "type": "shell",
+      "command": "sudo /usr/local/bin/lunify-sync ${input:uygulama} && sudo /usr/local/bin/lunify-db-tazele ${input:uygulama}",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    },
+    {
+      "label": "6 - SOHBET AJANI (karsilikli konus)",
+      "type": "shell",
+      "command": "cd /opt/coder/work/${input:uygulama} && /opt/coder/.opencode/bin/opencode",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "uygulama",
+      "type": "pickString",
+      "description": "Hangi uygulama?",
+      "options": [
+        "nexo",
+        "pulse",
+        "aura",
+        "atlas"
+      ],
+      "default": "nexo"
+    },
+    {
+      "id": "istek",
+      "type": "promptString",
+      "description": "Ne yapilsin? (Turkce yaz)"
+    }
+  ]
+}

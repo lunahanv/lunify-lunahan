@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — kullanıcı kılavuzu / user guide (TR + EN). Viktor, 2026-08-28 */
+/** LUNAHAN — kullanıcı kılavuzu / user guide (TR + EN). Viktor, 2026-08-28 */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -16,10 +16,10 @@ $tr = ($L === 'tr');
 
 $D = $tr ? [
   'title' => 'Kullanım Kılavuzu',
-  'sub'   => 'Atlas’ı ilk günden verimli kullanmak için bilmen gereken her şey.',
-  'intro_t' => 'Atlas nedir?',
-  'intro' => '<p>Lunify Atlas, günlük işlerini <b>normal cümlelerle</b> yaptırabildiğin kişisel asistanındır.
-     Panelden ya da <b>WhatsApp’tan</b> yazarsın; Atlas rehberine bakar, mesaj gönderir, e-postanı okur/yazar,
+  'sub'   => 'LUNAHAN’ı ilk günden verimli kullanmak için bilmen gereken her şey.',
+  'intro_t' => 'LUNAHAN nedir?',
+  'intro' => '<p>LUNAHAN, günlük işlerini <b>normal cümlelerle</b> yaptırabildiğin kişisel asistanındır.
+     Panelden ya da <b>WhatsApp’tan</b> yazarsın; LUNAHAN rehberine bakar, mesaj gönderir, e-postanı okur/yazar,
      takvimine randevu koyar, görev ve hatırlatıcı kurar, web’de araştırma yapar.</p>
      <p class="gnote">Komut ezberlemene gerek yok. “Ahmet’e yarınki toplantıyı hatırlat” demen yeterli.</p>',
   'start_t' => 'İlk 5 dakika',
@@ -34,41 +34,41 @@ $D = $tr ? [
   'chat' => '<ul>
      <li><b>Yeni sohbet</b> — soldaki “+ Yeni sohbet” ile konuyu ayır; eski sohbetler listede kalır.</li>
      <li><b>Mikrofon</b> 🎤 — yazmak yerine konuşarak istek gönder.</li>
-     <li><b>Şeffaflık</b> — Atlas hangi aracı kullandıysa mesajın altında görürsün (mail gönderildi, kişi bulundu vb.).</li>
-     <li><b>Dil</b> — sol alttaki TR/EN düğmesi tüm paneli ve Atlas’ın cevap dilini değiştirir.</li>
+     <li><b>Şeffaflık</b> — LUNAHAN hangi aracı kullandıysa mesajın altında görürsün (mail gönderildi, kişi bulundu vb.).</li>
+     <li><b>Dil</b> — sol alttaki TR/EN düğmesi tüm paneli ve LUNAHAN’ın cevap dilini değiştirir.</li>
      <li><b>Tema</b> — ay/güneş simgesiyle koyu moda geç.</li>
      <li><b>Menü sırası</b> — sol menüdeki maddeleri sürükleyerek kendi sıranı kaydedebilirsin.</li>
    </ul>',
   'wa_t' => 'WhatsApp’tan kullanmak',
-  'wa' => '<p>Atlas’ın en pratik yanı: paneli hiç açmadan <b>WhatsApp’tan</b> yazarak her şeyi yaptırabilmen.</p>
+  'wa' => '<p>LUNAHAN’ın en pratik yanı: paneli hiç açmadan <b>WhatsApp’tan</b> yazarak her şeyi yaptırabilmen.</p>
    <ul>
-     <li>Hattını QR ile bağladıktan sonra <b>kendi numarana</b> (Kendime mesaj) yazdığın her şey Atlas’a gider.</li>
+     <li>Hattını QR ile bağladıktan sonra <b>kendi numarana</b> (Kendime mesaj) yazdığın her şey LUNAHAN’a gider.</li>
      <li>Güvenlik: hatta sadece <b>sahibi</b> komut verebilir. Başkalarının yazdığı mesajlar sessizce yok sayılır; sahibi <b>WhatsApp</b> sayfasından sıfırlanabilir.</li>
-     <li>Mesaj gönderme: “Ayşe’ye 15:00 randevusunu hatırlat” dersen Atlas mesajı <b>doğrudan senin hattından</b> gönderir.</li>
+     <li>Mesaj gönderme: “Ayşe’ye 15:00 randevusunu hatırlat” dersen LUNAHAN mesajı <b>doğrudan senin hattından</b> gönderir.</li>
      <li>Bağlantı koparsa (telefon uzun süre kapalıysa) WhatsApp sayfasından karekodu tekrar okut.</li>
    </ul>',
   'contacts_t' => 'Rehber',
   'contacts' => '<ul>
      <li>WhatsApp rehberini tek tıkla içe aktar; mükerrer kayıt eklenmez.</li>
      <li>Sohbette “Mehmet Yılmaz’ı ekle, numarası 0532…” diyerek de kişi ekleyebilirsin.</li>
-     <li>Kişi rehberde yoksa Atlas bağlı WhatsApp hattının rehberinde de arar.</li>
-     <li>İsim benzer birden fazla kişi varsa Atlas hangisi olduğunu sorar — yanlış kişiye mesaj gitmez.</li>
+     <li>Kişi rehberde yoksa LUNAHAN bağlı WhatsApp hattının rehberinde de arar.</li>
+     <li>İsim benzer birden fazla kişi varsa LUNAHAN hangisi olduğunu sorar — yanlış kişiye mesaj gitmez.</li>
    </ul>',
   'mail_t' => 'Gmail, Takvim ve Görevler',
   'mail' => '<ul>
      <li><b>Okuma</b>: “Bugün gelen önemli mailleri özetle”, “Ali’den gelen son maili oku”.</li>
-     <li><b>Yazma</b>: “Ali’ye teklif için teşekkür maili yaz.” Atlas <b>önce taslağı</b> (kime / konu / metin) sohbette gösterir; sen “gönder” deyince yollar. Düzeltme istersen yeni taslak hazırlar.</li>
+     <li><b>Yazma</b>: “Ali’ye teklif için teşekkür maili yaz.” LUNAHAN <b>önce taslağı</b> (kime / konu / metin) sohbette gösterir; sen “gönder” deyince yollar. Düzeltme istersen yeni taslak hazırlar.</li>
      <li><b>Takvim</b>: “Salı 14:00’te Mehmet ile toplantı ekle”, “Bu haftaki randevularım”, “Cuma’daki toplantıyı sil”.</li>
      <li><b>Görevler</b>: “Perşembeye kadar fatura kesme görevi ekle”, “Açık görevlerim”, “X görevini tamamlandı yap”.</li>
    </ul>
-   <p class="gnote">Bağlantı <b>Gmail</b> sayfasından istediğin an kesilebilir; Atlas o andan sonra e-postana erişemez.</p>',
+   <p class="gnote">Bağlantı <b>Gmail</b> sayfasından istediğin an kesilebilir; LUNAHAN o andan sonra e-postana erişemez.</p>',
   'mem_t' => 'Hafıza ve hatırlatıcılar',
   'mem' => '<ul>
-     <li><b>Kalıcı hafıza</b>: “Şirketimin adı ABV Grup, mailleri hep resmî dille yaz” dersen Atlas bunu hatırlar ve sonraki işlerde uygular.</li>
+     <li><b>Kalıcı hafıza</b>: “Şirketimin adı ABV Grup, mailleri hep resmî dille yaz” dersen LUNAHAN bunu hatırlar ve sonraki işlerde uygular.</li>
      <li><b>Unut</b>: “Şu bilgiyi unut” dediğinde siler.</li>
      <li><b>Geçmiş arama</b>: “Geçen ay konuştuğumuz fiyat neydi?” — eski sohbetlerde arar.</li>
      <li><b>Hatırlatıcılar</b>: “Yarın 09:00’da beni ara-hatırlat” → <b>Görevler</b> sayfasında listelenir.</li>
-     <li><b>Arama</b>: Atlas telefon araması yapamaz; istediğinde numarayı bulup sana verir.</li>
+     <li><b>Arama</b>: LUNAHAN telefon araması yapamaz; istediğinde numarayı bulup sana verir.</li>
    </ul>',
   'ex_t' => 'Örnek istekler',
   'ex' => '',
@@ -80,16 +80,16 @@ $D = $tr ? [
   'faq' => '<ul>
      <li><b>WhatsApp “bağlı değil” diyor</b> — WhatsApp sayfasında karekodu tekrar okut. Telefonun internetinin açık olması gerekir.</li>
      <li><b>Rehber boş geldi</b> — hattı yeniden bağladıktan sonra birkaç dakika bekleyip “WhatsApp rehberini içe aktar”ı tekrar dene.</li>
-     <li><b>Mail gönderemedi</b> — Gmail bağlı değildir; <b>Gmail</b> sayfasından bağla. Atlas gönderemediğinde bunu açıkça söyler, sessizce “gönderdim” demez.</li>
-     <li><b>Yanlış kişiye gitmesin</b> — Atlas mesajı göndermeden önce kime gideceğini söyler; e-postada mutlaka taslak gösterir.</li>
+     <li><b>Mail gönderemedi</b> — Gmail bağlı değildir; <b>Gmail</b> sayfasından bağla. LUNAHAN gönderemediğinde bunu açıkça söyler, sessizce “gönderdim” demez.</li>
+     <li><b>Yanlış kişiye gitmesin</b> — LUNAHAN mesajı göndermeden önce kime gideceğini söyler; e-postada mutlaka taslak gösterir.</li>
      <li><b>Verilerim</b> — sohbetlerin, rehberin ve hafızan yalnızca senin hesabına bağlıdır; diğer kullanıcılar göremez.</li>
    </ul>',
 ] : [
   'title' => 'User Guide',
-  'sub'   => 'Everything you need to get productive with Atlas from day one.',
-  'intro_t' => 'What is Atlas?',
-  'intro' => '<p>Lunify Atlas is your personal assistant: you ask for things in <b>plain language</b>, from the web panel
-     or straight from <b>WhatsApp</b>. Atlas looks up contacts, sends messages, reads and writes your email,
+  'sub'   => 'Everything you need to get productive with LUNAHAN from day one.',
+  'intro_t' => 'What is LUNAHAN?',
+  'intro' => '<p>LUNAHAN is your personal assistant: you ask for things in <b>plain language</b>, from the web panel
+     or straight from <b>WhatsApp</b>. LUNAHAN looks up contacts, sends messages, reads and writes your email,
      books calendar events, keeps tasks and reminders, and researches the web for you.</p>
      <p class="gnote">No commands to memorise — “remind Ahmet about tomorrow’s meeting” is enough.</p>',
   'start_t' => 'Your first 5 minutes',
@@ -104,41 +104,41 @@ $D = $tr ? [
   'chat' => '<ul>
      <li><b>New chat</b> — start a separate thread per topic; previous chats stay in the list.</li>
      <li><b>Microphone</b> 🎤 — dictate instead of typing.</li>
-     <li><b>Transparency</b> — the tools Atlas used appear under each reply (email sent, contact found, …).</li>
-     <li><b>Language</b> — the TR/EN switch changes the whole panel and Atlas’ reply language.</li>
+     <li><b>Transparency</b> — the tools LUNAHAN used appear under each reply (email sent, contact found, …).</li>
+     <li><b>Language</b> — the TR/EN switch changes the whole panel and LUNAHAN’ reply language.</li>
      <li><b>Theme</b> — moon/sun icon toggles dark mode.</li>
      <li><b>Menu order</b> — drag sidebar items to save your own order.</li>
    </ul>',
-  'wa_t' => 'Using Atlas from WhatsApp',
-  'wa' => '<p>The most practical part: you never have to open the panel — just message Atlas on <b>WhatsApp</b>.</p>
+  'wa_t' => 'Using LUNAHAN from WhatsApp',
+  'wa' => '<p>The most practical part: you never have to open the panel — just message LUNAHAN on <b>WhatsApp</b>.</p>
    <ul>
-     <li>After linking your line, anything you write to <b>your own number</b> (Message yourself) goes to Atlas.</li>
+     <li>After linking your line, anything you write to <b>your own number</b> (Message yourself) goes to LUNAHAN.</li>
      <li>Security: only the line <b>owner</b> can give commands. Messages from anyone else are silently ignored; the owner can be reset on the <b>WhatsApp</b> page.</li>
-     <li>Sending: “tell Ayşe about the 3 pm appointment” — Atlas sends it <b>directly from your own line</b>.</li>
+     <li>Sending: “tell Ayşe about the 3 pm appointment” — LUNAHAN sends it <b>directly from your own line</b>.</li>
      <li>If the session drops (phone offline for a long time), scan the QR code again.</li>
    </ul>',
   'contacts_t' => 'Contacts',
   'contacts' => '<ul>
      <li>Import your WhatsApp contacts in one click — duplicates are skipped.</li>
      <li>You can also say “add Mehmet Yılmaz, number 0532…” in chat.</li>
-     <li>If a person is not in Atlas, it also looks them up in the linked WhatsApp line’s contacts.</li>
-     <li>If several names match, Atlas asks which one — no message goes to the wrong person.</li>
+     <li>If a person is not in LUNAHAN, it also looks them up in the linked WhatsApp line’s contacts.</li>
+     <li>If several names match, LUNAHAN asks which one — no message goes to the wrong person.</li>
    </ul>',
   'mail_t' => 'Gmail, Calendar and Tasks',
   'mail' => '<ul>
      <li><b>Reading</b>: “summarise today’s important emails”, “open the last email from Ali”.</li>
-     <li><b>Writing</b>: “write Ali a thank-you email for the quote.” Atlas <b>shows the draft first</b> (to / subject / body) and only sends after you confirm. Ask for edits and you get a new draft.</li>
+     <li><b>Writing</b>: “write Ali a thank-you email for the quote.” LUNAHAN <b>shows the draft first</b> (to / subject / body) and only sends after you confirm. Ask for edits and you get a new draft.</li>
      <li><b>Calendar</b>: “add a meeting with Mehmet Tuesday 2 pm”, “what’s on this week”, “delete Friday’s meeting”.</li>
      <li><b>Tasks</b>: “add a task to invoice by Thursday”, “my open tasks”, “mark X as done”.</li>
    </ul>
-   <p class="gnote">You can disconnect any time on the <b>Gmail</b> page; Atlas loses access instantly.</p>',
+   <p class="gnote">You can disconnect any time on the <b>Gmail</b> page; LUNAHAN loses access instantly.</p>',
   'mem_t' => 'Memory and reminders',
   'mem' => '<ul>
      <li><b>Long-term memory</b>: tell it “my company is ABV Group, always write emails formally” and it applies that later.</li>
      <li><b>Forget</b>: “forget that” removes a stored fact.</li>
      <li><b>Search history</b>: “what price did we discuss last month?” — it searches older chats.</li>
      <li><b>Reminders</b>: “remind me tomorrow at 9” → shown on the <b>Tasks</b> page.</li>
-     <li><b>Calls</b>: Atlas cannot dial; it finds and gives you the number.</li>
+     <li><b>Calls</b>: LUNAHAN cannot dial; it finds and gives you the number.</li>
    </ul>',
   'ex_t' => 'Example requests',
   'ex' => '',
@@ -150,8 +150,8 @@ $D = $tr ? [
   'faq' => '<ul>
      <li><b>WhatsApp says “not connected”</b> — rescan the QR code; your phone needs to be online.</li>
      <li><b>Contact import found nothing</b> — wait a couple of minutes after linking, then import again.</li>
-     <li><b>Email was not sent</b> — Gmail is probably not connected. Atlas always tells you when a send fails; it never pretends.</li>
-     <li><b>Wrong recipient</b> — Atlas states the recipient before sending and always shows email drafts first.</li>
+     <li><b>Email was not sent</b> — Gmail is probably not connected. LUNAHAN always tells you when a send fails; it never pretends.</li>
+     <li><b>Wrong recipient</b> — LUNAHAN states the recipient before sending and always shows email drafts first.</li>
      <li><b>Your data</b> — chats, contacts and memory belong to your account only; other users cannot see them.</li>
    </ul>',
 ];
@@ -267,7 +267,7 @@ foreach (['intro','start','chat','wa','contacts','mail','mem'] as $k): ?>
 <?php endforeach; ?>
 
 <p class="muted" style="text-align:center;font-size:12.5px;margin:6px 0 18px">
-  <?= $tr ? 'Takıldığın bir yer olursa Atlas’a sohbetten sorabilirsin.' : 'Stuck? Just ask Atlas in chat.' ?>
+  <?= $tr ? 'Takıldığın bir yer olursa LUNAHAN’a sohbetten sorabilirsin.' : 'Stuck? Just ask LUNAHAN in chat.' ?>
 </p>
 <div id="gLightbox" onclick="this.style.display='none'"><img id="gLightboxImg" src="" alt=""></div>
 <script>

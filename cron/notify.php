@@ -6,9 +6,9 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/* Lunify Atlas — hatirlatma/takip gonderici (systemd timer: atlas-notify, 5 dakikada bir).
+/* LUNAHAN — hatirlatma/takip gonderici (systemd timer: atlas-notify, 5 dakikada bir).
    Zamani gelen hatirlatmalari ve emlak takiplerini kullanicinin KENDI WhatsApp hattina yazar. */
-require_once '/opt/lunify/atlas/includes/db.php';
+require_once '/opt/lunify/lunahan/includes/db.php';
 date_default_timezone_set('Europe/Istanbul');
 
 function nt_bridge_me(int $uid): ?string {

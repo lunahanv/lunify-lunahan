@@ -1,0 +1,35 @@
+# LUNAHAN (lunahan.com.tr)
+# Pazarlama/bilgi sayfalari taranabilir; oturum gerektiren uygulama ekranlari ve
+# kullanici verisi iceren yollar indekslenmez. Guncelleme: 2026-09-15 (Viktor)
+
+User-agent: *
+Allow: /$
+Allow: /privacy
+Allow: /terms
+Allow: /guide.php
+Allow: /cerezler.php
+Allow: /robots.txt
+Allow: /sitemap.xml
+Allow: /assets/
+Allow: /favicon.ico
+Allow: /manifest
+Disallow: /api/
+Disallow: /admin/
+Disallow: /admin.php
+Disallow: /uploads/
+Disallow: /media
+Disallow: /app.php
+Disallow: /login
+Disallow: /login.php
+Disallow: /reset
+Disallow: /reset.php
+Disallow: /verify
+Disallow: /verify.php
+Disallow: /auth-google.php
+Disallow: /google-callback.php
+Disallow: /gmail-callback.php
+Disallow: /*?*token=
+Disallow: /*?*id=
+Disallow: /
+
+Sitemap: https://lunahan.com.tr/sitemap.xml

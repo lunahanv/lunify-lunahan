@@ -1,16 +1,57 @@
 <?php
 /**
- * Lunify Atlas — kullanıcı hesapları, oturum, şifre sıfırlama, Google ile giriş, paket/abonelik.
+ * LUNAHAN — kullanıcı hesapları, oturum, şifre sıfırlama, Google ile giriş, paket/abonelik.
  * Copyright (c) 2026 Lunify A.Ş. Tüm hakları saklıdır.
  */
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/loginguard.php';
 
 /* ---------- oturum ---------- */
+define('LH_SESS_TTL', 60*60*24*30); // 30 gun kalici oturum
+function atlas_same_origin_request(): bool {
+  $scheme = (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https') ? 'https' : 'http';
+  $source = trim((string)($_SERVER['HTTP_ORIGIN'] ?? ''));
+  if ($source === '') $source = trim((string)($_SERVER['HTTP_REFERER'] ?? ''));
+  if ($source === '' || strtolower($source) === 'null') return false;
+  $src = parse_url($source); $req = parse_url($scheme . '://' . (string)($_SERVER['HTTP_HOST'] ?? ''));
+  if (!$src || !$req || empty($src['host']) || empty($req['host'])) return false;
+  if (strtolower((string)($src['scheme'] ?? '')) !== $scheme) return false;
+  $default = $scheme === 'https' ? 443 : 80;
+  return strtolower((string)$src['host']) === strtolower((string)$req['host'])
+      && (int)($src['port'] ?? $default) === (int)($req['port'] ?? $default);
+}
+function atlas_csrf_token(): string {
+  atlas_session(); return (string)($_SESSION['_csrf'] ?? '');
+}
 function atlas_session(): void {
   if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(['lifetime'=>0,'path'=>'/','httponly'=>true,'samesite'=>'Lax',
-      'secure'=>(!empty($_SERVER['HTTPS']))]);
+    $dir = '/var/lib/php/lunahan_sessions';
+    if (is_dir($dir) && is_writable($dir)) { ini_set('session.save_path', $dir); }
+    ini_set('session.gc_maxlifetime', (string)LH_SESS_TTL);
+    ini_set('session.gc_probability', '1');
+    ini_set('session.gc_divisor', '200');
+    ini_set('session.use_strict_mode', '1');
+    $sec = (!empty($_SERVER['HTTPS']) || ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $params = ['lifetime'=>LH_SESS_TTL,'path'=>'/','httponly'=>true,'samesite'=>'Lax','secure'=>$sec];
+    session_set_cookie_params($params);
     session_start();
+    if (empty($_SESSION['_csrf'])) $_SESSION['_csrf'] = bin2hex(random_bytes(32));
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+      $expected = (string)($_SESSION['_csrf'] ?? '');
+      $provided = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['_csrf'] ?? ''));
+      if ($expected === '' || $provided === '' || !hash_equals($expected, $provided) || !atlas_same_origin_request()) {
+        http_response_code(403);
+        if (str_contains((string)($_SERVER['SCRIPT_NAME'] ?? ''), '/api/')) {
+          header('Content-Type: application/json; charset=utf-8'); echo json_encode(['error'=>'request rejected']);
+        } else { header('Content-Type: text/plain; charset=utf-8'); echo 'Request rejected'; }
+        exit;
+      }
+    }
+    // her istekte cerezi tazele -> 30 gun kayan sure
+    if (!empty($_SESSION['uid']) && !headers_sent()) {
+      setcookie(session_name(), session_id(), [
+        'expires'=>time()+LH_SESS_TTL,'path'=>'/','httponly'=>true,'samesite'=>'Lax','secure'=>$sec]);
+    }
   }
 }
 
@@ -53,6 +94,7 @@ function require_admin(): array {
 function auth_start_session(array $u): void {
   atlas_session();
   session_regenerate_id(true);
+  $_SESSION['_csrf'] = bin2hex(random_bytes(32));
   $_SESSION['uid'] = (int)$u['id'];
   db()->prepare('UPDATE users SET last_login=NOW() WHERE id=?')->execute([$u['id']]);
 }
@@ -74,15 +116,61 @@ function auth_register(string $email, string $pass, string $name = '', string $l
   $id = (int)db()->lastInsertId();
   db()->prepare('INSERT INTO subscription_log(user_id,plan_code,action,note) VALUES(?,\'trial\',\'signup\',?)')
       ->execute([$id, 'kayıt']);
+  db()->prepare('UPDATE users SET email_verified=0 WHERE id=?')->execute([$id]);
   $s = db()->prepare('SELECT * FROM users WHERE id=?'); $s->execute([$id]);
-  return ['ok'=>true,'user'=>$s->fetch()];
+  $nu = $s->fetch();
+  auth_verify_send($nu, $lang);   // dogrulama maili
+  return ['ok'=>true,'user'=>$nu,'verify'=>true];
 }
 function auth_login(string $email, string $pass): array {
+  // Brute-force kilidi (Viktor 2026-09-10)
+  if (function_exists('lgIsLocked') && lgIsLocked(db(), $email)) return ['ok'=>false,'err'=>'locked'];
   $u = auth_find_by_email($email);
-  if (!$u || !$u['pass_hash'] || !password_verify($pass, $u['pass_hash'])) return ['ok'=>false,'err'=>'bad'];
+  if (!$u || !$u['pass_hash'] || !password_verify($pass, $u['pass_hash'])) {
+    if (function_exists('lgLog')) lgLog(db(), $email, false);
+    return ['ok'=>false,'err'=>'bad'];
+  }
   if ($u['status'] !== 'active') return ['ok'=>false,'err'=>'suspended'];
+  if (array_key_exists('email_verified', $u) && !$u['email_verified'])
+    return ['ok'=>false,'err'=>'unverified','user'=>$u];
+  if (function_exists('lgClear')) lgClear(db(), $email);
   auth_start_session($u);
   return ['ok'=>true,'user'=>$u];
+}
+
+
+/* ---------- e-posta dogrulama (Viktor 2026-09-09, sahip istegi) ---------- */
+function auth_verify_link(string $token, string $lang = 'tr'): string {
+  return rtrim(APP_URL, '/') . '/verify.php?token=' . $token . '&lang=' . $lang;
+}
+function auth_verify_send(array $u, string $lang = 'tr'): array {
+  $token = bin2hex(random_bytes(24));
+  db()->prepare('UPDATE users SET verify_token=?, verify_sent_at=NOW() WHERE id=?')->execute([$token, $u['id']]);
+  $link = auth_verify_link($token, $lang);
+  $en = ($lang === 'en');
+  $subj = APP_NAME . ($en ? ' — confirm your e-mail' : ' — e-posta adresini doğrula');
+  $html = '<div style="font-family:Inter,Arial,sans-serif;max-width:520px">'
+    . '<h2 style="color:#4b3f8f">' . htmlspecialchars(APP_NAME) . '</h2>'
+    . '<p>' . ($en ? 'Welcome! Please confirm your e-mail address to activate your account.'
+                   : 'Hoş geldin! Hesabını aktifleştirmek için e-posta adresini doğrula.') . '</p>'
+    . '<p><a href="' . htmlspecialchars($link) . '" style="background:#c9a227;color:#111;padding:12px 20px;'
+    . 'border-radius:10px;text-decoration:none;font-weight:600">'
+    . ($en ? 'Confirm my e-mail' : 'E-postamı doğrula') . '</a></p>'
+    . '<p style="color:#666;font-size:13px">' . ($en ? 'The link is valid for 48 hours.' : 'Bağlantı 48 saat geçerlidir.') . '</p>'
+    . '<p style="color:#999;font-size:12px">' . htmlspecialchars($link) . '</p></div>';
+  $m = atlas_send_mail($u['email'], $subj, $html);
+  if (empty($m['ok'])) error_log(APP_NAME . ' verify mail: ' . ($m['err'] ?? '?'));
+  return $m;
+}
+function auth_verify_apply(string $token): ?array {
+  if ($token === '') return null;
+  $s = db()->prepare('SELECT * FROM users WHERE verify_token=? AND verify_sent_at > (NOW() - INTERVAL 48 HOUR)');
+  $s->execute([$token]);
+  $u = $s->fetch();
+  if (!$u) return null;
+  db()->prepare('UPDATE users SET email_verified=1, verify_token=NULL WHERE id=?')->execute([$u['id']]);
+  $u['email_verified'] = 1;
+  return $u;
 }
 
 /* ---------- şifre sıfırlama ---------- */
@@ -110,7 +198,7 @@ function auth_reset_apply(array $row, string $newPass): bool {
 function atlas_send_mail(string $to, string $subject, string $html): array {
   $host = SMTP_HOST; $port = SMTP_PORT; $user = SMTP_USER; $pass = SMTP_PASS;
   if (!$host || !$user) return ['ok'=>false,'err'=>'smtp yapılandırılmadı'];
-  $ctx = stream_context_create(['ssl'=>['verify_peer'=>false,'verify_peer_name'=>false]]);
+  $ctx = stream_context_create(['ssl'=>['verify_peer'=>true,'verify_peer_name'=>true]]);
   $fp = @stream_socket_client('ssl://' . $host . ':' . $port, $en, $es, 20, STREAM_CLIENT_CONNECT, $ctx);
   if (!$fp) return ['ok'=>false,'err'=>"bağlanamadı: $es"];
   stream_set_timeout($fp, 20);
@@ -143,9 +231,11 @@ function google_auth_url(string $state): string {
     'client_id' => gsetting('google_client_id',''),
     'redirect_uri' => google_redirect_uri(),
     'response_type' => 'code',
-    'scope' => 'openid email profile',
+    'scope' => 'openid email profile https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/contacts',
     'state' => $state,
-    'prompt' => 'select_account',
+    'access_type' => 'offline',
+    'include_granted_scopes' => 'true',
+    'prompt' => 'select_account consent',
   ]);
 }
 function google_exchange(string $code): ?array {
@@ -162,8 +252,30 @@ function google_exchange(string $code): ?array {
   if (count($parts) < 2) return null;
   $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
   if (empty($payload['email'])) return null;
+  $j['_email'] = $payload['email'];
+  $GLOBALS['g_last_token'] = $j; /* girise ait tokenlar: Gmail/Takvim baglantisi icin */
   return $payload;
 }
+
+/* Google ile giris sirasinda alinan tokenlari dogrudan Gmail/Takvim/Gorevler baglantisi
+   olarak kaydet — kullanicinin ayrica "Google baglantisi" ekranina girmesi gerekmesin.
+   (Viktor 2026-09-10) */
+function google_store_tokens(int $uid): bool {
+  $j = $GLOBALS['g_last_token'] ?? null;
+  if (!is_array($j) || $uid <= 0) return false;
+  $has = false;
+  if (!empty($j['refresh_token'])) { set_setting('gmail_refresh_token', $j['refresh_token'], $uid); $has = true; }
+  if (!empty($j['access_token'])) {
+    set_setting('gmail_access_token', $j['access_token'], $uid);
+    set_setting('gmail_expires_at', (string)(time() + (int)($j['expires_in'] ?? 3000) - 60), $uid);
+    $has = true;
+  }
+  if (!$has) return false;
+  if (!empty($j['scope'])) set_setting('gmail_scopes', $j['scope'], $uid);
+  if (!empty($j['_email'])) set_setting('gmail_address', $j['_email'], $uid);
+  return true;
+}
+
 /** Google profiliyle giriş yap; hesap yoksa oluştur. */
 function google_login(array $p): array {
   $email = mb_strtolower($p['email']);
@@ -185,6 +297,7 @@ function google_login(array $p): array {
        ->execute([$p['sub'] ?? null, $p['picture'] ?? null, $u['id']]);
   }
   if ($u['status'] !== 'active') return ['ok'=>false,'err'=>'suspended'];
+  db()->prepare('UPDATE users SET email_verified=1, verify_token=NULL WHERE id=?')->execute([$u['id']]);
   auth_start_session($u);
   return ['ok'=>true,'user'=>$u];
 }

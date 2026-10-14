@@ -17,8 +17,9 @@ function mdToHtml(s){
   s = s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
   s = s.replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<i>$2</i>');
   s = s.replace(/`([^`]+)`/g,'<code>$1</code>');
-  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
-  s = s.replace(/(^|\s)(https?:\/\/[^\s<]+)/g,'$1<a href="$2" target="_blank" rel="noopener">$2</a>');
+  const safeHref = u => u.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  s = s.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,(_,label,url)=>'<a href="'+safeHref(url)+'" target="_blank" rel="noopener">'+label+'</a>');
+  s = s.replace(/(^|\s)(https?:\/\/[^\s<]+)/g,(_,prefix,url)=>prefix+'<a href="'+safeHref(url)+'" target="_blank" rel="noopener">'+url+'</a>');
   s = s.replace(/^---+$/gm,'<hr>');
   return s;
 }
@@ -37,13 +38,57 @@ function bubble(text, cls, tools){
   return d;
 }
 
+
+/* --- Dosya ekleme (Viktor 2026-09-09): panelden PDF/foto/ses yukleme --- */
+let LH_PENDING = [];   // {id, filename, kind}
+const attachBtn = document.getElementById('attach');
+const fileInput = document.getElementById('fileInput');
+const attachHint = document.getElementById('attachHint');
+
+function lhRenderPending(){
+  if(!attachHint) return;
+  if(!LH_PENDING.length){ attachHint.textContent=''; return; }
+  attachHint.textContent = '📎 ' + LH_PENDING.map(f=>f.filename).join(', ')
+    + (ATLAS_LANG==='tr' ? ' — mesajınla birlikte gönderilecek' : ' — will be sent with your message');
+}
+
+if(attachBtn && fileInput){
+  attachBtn.addEventListener('click', ()=> fileInput.click());
+  fileInput.addEventListener('change', async ()=>{
+    if(!fileInput.files.length) return;
+    const fd = new FormData();
+    for(const f of fileInput.files) fd.append('files[]', f);
+    fd.append('conv', ATLAS_CONV || 0);
+    if(attachHint) attachHint.textContent = (ATLAS_LANG==='tr'?'Dosya okunuyor…':'Reading file…');
+    try{
+      const r = await fetch('api/upload.php',{method:'POST',body:fd});
+      if(r.status===401){ location.href='login.php'; return; }
+      const j = await r.json();
+      if(j.error){ if(attachHint) attachHint.textContent = '⚠️ ' + j.error; }
+      else {
+        (j.files||[]).forEach(f=>LH_PENDING.push(f));
+        lhRenderPending();
+        (j.errors||[]).forEach(e=>bubble('⚠️ '+e,'bot'));
+        const bad = (j.files||[]).filter(f=>f.status!=='ok').map(f=>f.filename);
+        if(bad.length) bubble('⚠️ ' + bad.join(', ') + (ATLAS_LANG==='tr'
+          ? ' dosyasının içeriği okunamadı; yine de gönderebilirsin.'
+          : ' could not be read; you can still send it.'),'bot');
+      }
+    }catch(e){ if(attachHint) attachHint.textContent = '⚠️ ' + (T.connerr||'bağlantı hatası'); }
+    fileInput.value='';
+  });
+}
+
 if(form) form.addEventListener('submit', async (e)=>{
   e.preventDefault();
-  const text = cmd.value.trim(); if(!text) return;
-  bubble(text,'me'); cmd.value='';
+  const text = cmd.value.trim();
+  if(!text && !LH_PENDING.length) return;
+  const fids = LH_PENDING.map(f=>f.id);
+  const label = LH_PENDING.length ? (text ? text + '\n' : '') + '📎 ' + LH_PENDING.map(f=>f.filename).join(', ') : text;
+  bubble(label,'me'); cmd.value=''; if(window.lhMicReset) window.lhMicReset(); LH_PENDING=[]; lhRenderPending();
   const wait = bubble('…','bot');
   try{
-    const r = await fetch('api/command.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'text='+encodeURIComponent(text)+'&conv='+ATLAS_CONV});
+    const r = await fetch('api/command.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'text='+encodeURIComponent(text)+'&conv='+ATLAS_CONV+(fids.length?'&file_ids='+fids.join(','):'')});
     if(r.status===401){ location.href='login.php'; return; }
     const j = await r.json();
     wait.remove();
@@ -157,7 +202,7 @@ async function loadConvs(){
 async function openConv(id){
   if(!feed) return;
   ATLAS_CONV = Number(id);
-  try{ localStorage.setItem('atlasConv', ATLAS_CONV); }catch(e){}
+  try{ sessionStorage.setItem('atlasConv', ATLAS_CONV); }catch(e){}
   feed.innerHTML = '';
   try{
     const j = await (await fetch('api/conversations.php?action=messages&id='+ATLAS_CONV)).json();
@@ -169,7 +214,10 @@ async function openConv(id){
 
 function newConv(silent){
   ATLAS_CONV = 0;
-  try{ localStorage.removeItem('atlasConv'); }catch(e){}
+  try{ sessionStorage.removeItem('atlasConv'); localStorage.removeItem('atlasConv'); }catch(e){}
+  if(cmd) cmd.value='';
+  if(window.lhMicReset) window.lhMicReset();
+  if(typeof LH_PENDING!=='undefined'){ LH_PENDING=[]; if(window.lhRenderPending) lhRenderPending(); }
   if(feed){ feed.innerHTML=''; bubble(T.greet,'bot'); }
   if(!silent) loadConvs();
 }
@@ -180,10 +228,11 @@ async function initChat(){
   if(btn) btn.onclick = ()=>newConv();
   let items = [];
   try{ items = (await (await fetch('api/conversations.php?action=list')).json()).items || []; }catch(e){}
+  /* Viktor 2026-09-10: her yeni giris/sekme BOS sohbetle baslar; eski sohbet
+     sadece ayni sekmede yenilenince veya listeden secilince devam eder. */
   let want = 0;
-  try{ want = Number(localStorage.getItem('atlasConv')||0); }catch(e){}
+  try{ want = Number(sessionStorage.getItem('atlasConv')||0); }catch(e){}
   if(want && !items.some(c=>Number(c.id)===want)) want = 0;
-  if(!want && items.length) want = Number(items[0].id);
   if(want) await openConv(want); else { newConv(); }
 }
 initChat();
@@ -207,12 +256,14 @@ setInterval(loadState, 8000);
   let wantListen = false;         // kullanıcı dinlemeyi açık tutmak istiyor mu
   let baseText = '';              // mikrofon açılmadan önce kutuda yazan metin
   let finalText = '';             // bu oturumda kesinleşen konuşma
+  let suppressUntil = 0;          // bu zamana kadar gelen dikte sonuclari yutulur
 
   function startRec(){
     baseText = cmd.value.trim();
     finalText = '';
     try{ rec.start(); }catch(e){}
   }
+  function suppressing(){ return Date.now() < suppressUntil; }
 
   mic.addEventListener('click', ()=>{
     if(wantListen){                       // kapat
@@ -238,6 +289,7 @@ setInterval(loadState, 8000);
   };
 
   rec.onresult = (ev)=>{
+    if(suppressing()){ if(cmd) cmd.value=''; baseText=''; finalText=''; return; }  // gonderim sonrasi gec sonuclari yut
     let interim='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
       const t = ev.results[i][0].transcript;
@@ -249,8 +301,9 @@ setInterval(loadState, 8000);
   // Tarayıcı sessizlikte kendiliğinden durdurursa, kullanıcı kapatmadıysa devam ettir
   rec.onend = ()=>{
     if(wantListen){
-      baseText = cmd.value.trim();
+      baseText = suppressing() ? '' : cmd.value.trim();
       finalText = '';
+      if(suppressing() && cmd) cmd.value='';
       try{ rec.start(); }catch(e){ wantListen=false; mic.classList.remove('rec'); }
       return;
     }
@@ -258,6 +311,20 @@ setInterval(loadState, 8000);
     hint.textContent = cmd.value.trim()
       ? T.mic_ready
       : T.mic_none;
+  };
+
+  /* Viktor 2026-09-09: gonderdikten sonra dikte tamponunu da sifirla.
+     Aksi halde mikrofon acik kalirsa onresult eski metni geri yaziyordu. */
+  window.lhMicReset = function(){
+    baseText = ''; finalText = '';
+    suppressUntil = Date.now() + 1500;          // 1.5 sn boyunca gec sonuclari yut
+    if(cmd) cmd.value = '';
+    if(wantListen){
+      try{ rec.abort(); }catch(e){ try{ rec.stop(); }catch(e2){} }   // onend yeniden baslatir
+      [80,250,600,1000,1400].forEach(ms=>setTimeout(()=>{
+        if(suppressing() && cmd && cmd.value.trim()){ cmd.value=''; baseText=''; finalText=''; }
+      }, ms));
+    }
   };
 
   // Gönderdikten sonra ipucunu temizle
@@ -280,7 +347,7 @@ async function loadWa(){
       if(b) b.onclick = async () => {
         if(!confirm(T.wa_confirm)) return;
         b.disabled = true;
-        await fetch('api/wa.php?action=logout');
+        await fetch('api/wa.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'action=logout'});
         setTimeout(loadWa, 2500);
       };
     } else if(st === 'qr' && j.qr){

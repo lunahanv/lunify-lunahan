@@ -7,7 +7,7 @@
  */
 
 /**
- * Lunify Atlas — dil yönetimi (TR / EN)
+ * LUNAHAN — dil yönetimi (TR / EN)
  * Dil sırası: ?lang=xx  >  çerez  >  tarayıcı dili  >  varsayılan (tr)
  */
 

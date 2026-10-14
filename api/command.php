@@ -22,9 +22,15 @@ if (!$q['ok']) {
   echo json_encode(['error'=>$msg, 'code'=>$q['err'], 'upgrade'=>'account.php'], JSON_UNESCAPED_UNICODE);
   exit;
 }
+$budget = atlas_ai_budget_check((int)$u['id']);
+if (!$budget['ok']) { http_response_code(429); echo json_encode(['error'=>atlas_ai_budget_message($budget['err']),'code'=>$budget['err']], JSON_UNESCAPED_UNICODE); exit; }
 
 $text = trim($_POST['text'] ?? '');
-if ($text === '') { echo json_encode(['error'=>'boş komut']); exit; }
+/* Panelden yuklenen dosyalar (Viktor 2026-09-09): id listesi ile gelir, icerikleri
+   bu turda ajanin baglamina metin olarak enjekte edilir. */
+$fileIds = array_values(array_filter(array_map('intval', explode(',', (string)($_POST['file_ids'] ?? '')))));
+if ($text === '' && !$fileIds) { echo json_encode(['error'=>'boş komut']); exit; }
+if ($text === '') $text = 'Ekteki dosyayı incele ve özetle.';
 
 /* Aktif sohbet (konusma). Yoksa ilk mesajdan baslik uretip yeni sohbet ac. */
 $conv = (int)($_POST['conv'] ?? 0);
@@ -47,7 +53,16 @@ $ins = db()->prepare('INSERT INTO commands(user_id,conv_id,user_text,status) VAL
 $ins->execute([$u['id'], $conv, $text]);
 $cid = db()->lastInsertId();
 
-$out = atlas_process($text, atlas_lang());
+$agentText = $text;
+if ($fileIds) {
+  require_once __DIR__ . '/../includes/files.php';
+  $blk = lh_context_block($fileIds, (int)$u['id']);
+  if ($blk !== '') $agentText = $blk . "\n\n" . $text;
+  $uf = db()->prepare('UPDATE lh_files SET conv_id=? WHERE id=? AND user_id=?');
+  foreach ($fileIds as $fid) $uf->execute([$conv, $fid, (int)$u['id']]);
+}
+
+$out = atlas_process($agentText, atlas_lang(), (int)$u['id']);
 
 $upd = db()->prepare('UPDATE commands SET agent_reply=?, tools_json=?, status=\'done\' WHERE id=? AND user_id=?');
 $upd->execute([$out['reply'], json_encode($out['tools'], JSON_UNESCAPED_UNICODE), $cid, $u['id']]);
@@ -59,3 +74,13 @@ $ctitle->execute([$conv]);
 $p = plan_row($u['plan_code']);
 echo json_encode(['id'=>$cid, 'conv'=>$conv, 'conv_new'=>$convNew, 'conv_title'=>(string)$ctitle->fetchColumn(), 'reply'=>$out['reply'], 'tools'=>$out['tools'],
   'usage'=>['used'=>usage_month((int)$u['id']), 'limit'=>(int)$p['monthly_commands']]], JSON_UNESCAPED_UNICODE);
+
+/* Otomatik hafiza (Viktor 2026-09-10): cevap kullaniciya gittikten SONRA, arka planda
+   kalici bilgileri cikar ve sohbet ozetini guncelle. Kullaniciya ek gecikme yok. */
+@ob_end_flush(); @flush();
+if (function_exists('fastcgi_finish_request')) @fastcgi_finish_request();
+if (function_exists('lh_auto_memory')) {
+  @ignore_user_abort(true);
+  try { lh_auto_memory($text, (string)$out['reply'], (int)$u['id'], $conv, atlas_lang()); }
+  catch (Throwable $e) {}
+}

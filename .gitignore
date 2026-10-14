@@ -11,3 +11,15 @@ vendor/
 node_modules/
 session/
 *.sql
+.env
+*.key
+build/
+.gradle/
+Pods/
+*.apk
+*.aab
+*.ipa
+*.jks
+*.keystore
+local.properties
+google-services.json

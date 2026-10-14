@@ -7,6 +7,7 @@
  */
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/secrets.php';
 function db(): PDO {
   static $pdo = null;
   if ($pdo === null) {
@@ -22,10 +23,15 @@ function db(): PDO {
 function setting(string $k, $default = null, ?int $uid = null) {
   if ($uid === null) $uid = function_exists('atlas_uid') ? atlas_uid() : 0;
   $s = db()->prepare('SELECT v FROM settings WHERE user_id=? AND k=?'); $s->execute([$uid, $k]);
-  $r = $s->fetch(); return $r ? $r['v'] : $default;
+  $r = $s->fetch();
+  if (!$r) return $default;
+  $secret = ['search_api_key' => true];
+  return isset($secret[$k]) && function_exists('hsecOpen') ? hsecOpen($r['v']) : $r['v'];
 }
 function set_setting(string $k, $v, ?int $uid = null) {
   if ($uid === null) $uid = function_exists('atlas_uid') ? atlas_uid() : 0;
+  $secret = ['search_api_key' => true];
+  if (isset($secret[$k]) && function_exists('hsecSeal')) $v = hsecSeal($v);
   $s = db()->prepare('INSERT INTO settings(user_id,k,v) VALUES(?,?,?) ON DUPLICATE KEY UPDATE v=VALUES(v)');
   $s->execute([$uid, $k, $v]);
 }

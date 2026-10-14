@@ -1,0 +1,5 @@
+Contact: mailto:guvenlik@lunify.world
+Expires: 2027-09-10T00:00:00.000Z
+Preferred-Languages: tr, en
+Canonical: https://lunahan.com.tr/.well-known/security.txt
+Policy: https://lunahan.com.tr/privacy

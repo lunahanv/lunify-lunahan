@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — Baslangic Rehberi sayfasi (Getting Started) */
+/** LUNAHAN — Baslangic Rehberi sayfasi (Getting Started) */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -21,8 +21,8 @@ ob_mark_seen();
 $tr = ob_is_tr();
 
 atlas_header($tr ? 'Başlangıç Rehberi' : 'Getting Started', 'start',
-  $tr ? 'Atlas’ı 8 adımda tam kapasite çalışır hale getirin.'
-      : 'Get Atlas fully working in eight short steps.');
+  $tr ? 'LUNAHAN’ı 8 adımda tam kapasite çalışır hale getirin.'
+      : 'Get LUNAHAN fully working in eight short steps.');
 ?>
 <?php if ($first) ob_render_welcome(); ?>
 <?php ob_render('page'); ?>
@@ -35,7 +35,7 @@ atlas_header($tr ? 'Başlangıç Rehberi' : 'Getting Started', 'start',
     </div>
   </a>
   <a href="app.php?lang=<?= $L ?>" class="block bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 hover:border-primary-400">
-    <div class="text-sm font-semibold text-gray-900 dark:text-white"><?= $tr ? 'Asistanla Sohbet' : 'Chat with Atlas' ?></div>
+    <div class="text-sm font-semibold text-gray-900 dark:text-white"><?= $tr ? 'Asistanla Sohbet' : 'Chat with LUNAHAN' ?></div>
     <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
       <?= $tr ? 'Ne yapabileceğini sorun; düz cümleyle iş yaptırın.' : 'Ask what it can do, then delegate in plain language.' ?>
     </div>

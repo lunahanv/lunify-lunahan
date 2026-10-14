@@ -7,6 +7,11 @@
  */
 
 /** Google ile giriş — OAuth callback */
+/* Anahtar icin OAuth koprusu: state 'ax.' ile basliyorsa yetki kodunu Anahtar'a devret. */
+if (isset($_GET['state']) && strncmp((string)$_GET['state'], 'ax.', 3) === 0) {
+  $q = http_build_query(array_intersect_key($_GET, array_flip(['code','state','scope','authuser','prompt','error'])));
+  header('Location: https://anahtar.lunify.world/auth-google.php?' . $q); exit;
+}
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 atlas_session();
@@ -20,4 +25,9 @@ $p = google_exchange($code);
 if (!$p) { header('Location: login.php?mode=in&lang=' . $L . '&g=err'); exit; }
 $r = google_login($p);
 if (!$r['ok']) { header('Location: login.php?mode=in&lang=' . $L . '&g=sus'); exit; }
+/* Girisle birlikte Google (Gmail/Takvim/Gorevler/Drive) baglantisini otomatik kur. */
+if (function_exists('google_store_tokens')) {
+  try { google_store_tokens((int)($r['user']['id'] ?? 0)); }
+  catch (Throwable $e) { error_log('[glogin-tokens] ' . $e->getMessage()); }
+}
 header('Location: app.php?lang=' . $L);

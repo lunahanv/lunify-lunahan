@@ -6,12 +6,15 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-// Atlas — WhatsApp bağlantı sayfası (kullanıcıya özel QR ile kendi hattını bağlar)
+// LUNAHAN — WhatsApp bağlantı sayfası (kullanıcıya özel QR ile kendi hattını bağlar)
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
 atlas_session();
-require_login();
+$U = require_login();
+// Izinli numara yonetimi SADECE yoneticide: normal kullanicinin bagladigi hattin
+// kendi numarasi zaten otomatik izinli. Viktor 2026-09-04
+$waIsAdmin = !empty($U['is_admin']);
 
 function wa_call(string $path, array $post = null) {
   if (!WA_BRIDGE_URL) return ['error' => 'köprü ayarlı değil'];
@@ -38,11 +41,11 @@ if (isset($_GET['api'])) {
   }
   echo json_encode(['error' => 'bilinmeyen']); exit;
 }
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_owner'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reset_owner']) && $waIsAdmin) {
   set_setting('wa_owner', ''); set_setting('wa_owner_name', '');
   header('Location: wa.php?ok=1'); exit;
 }
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_owner'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_owner']) && $waIsAdmin) {
   $nums = preg_split('/[,;\s]+/', (string)($_POST['owner_numbers'] ?? ''));
   $clean = [];
   foreach ($nums as $n) { $n = preg_replace('/[^0-9]/', '', (string)$n); if ($n !== '') $clean[] = $n; }
@@ -51,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_owner'])) {
 }
 $waOwner = (string)setting('wa_owner', '');
 $waOwnerName = (string)setting('wa_owner_name', '');
-atlas_header('WhatsApp', 'wa', 'Atlas\'ı WhatsApp\'tan kullanmak için numaranı QR ile bağla.');
+atlas_header('WhatsApp', 'wa', 'LUNAHAN\'ı WhatsApp\'tan kullanmak için numaranı QR ile bağla.');
 ?>
 <style>
 .atlas-page #qr img{width:260px;height:260px;display:block;margin:10px auto;border-radius:12px}
@@ -64,7 +67,7 @@ atlas_header('WhatsApp', 'wa', 'Atlas\'ı WhatsApp\'tan kullanmak için numaran�
 
 <div class="acard">
   <h3 style="text-transform:none;font-size:16px;color:inherit">WhatsApp bağlantısı</h3>
-  <div class="sub">Atlas'ı WhatsApp'tan kullanmak için numaranı bağla.</div>
+  <div class="sub">LUNAHAN'ı WhatsApp'tan kullanmak için numaranı bağla.</div>
   <div id="stat"><span class="st wait">yükleniyor…</span></div>
   <div id="qr"></div>
   <div class="steps" id="steps">
@@ -75,12 +78,12 @@ atlas_header('WhatsApp', 'wa', 'Atlas\'ı WhatsApp\'tan kullanmak için numaran�
   </div>
   <div id="acts"></div>
   <hr style="border:0;border-top:1px solid #eef0f7;margin:18px 0">
+<?php if ($waIsAdmin): ?>
   <div class="sub">
-    <b>Atlas'a kim yazabilir?</b><br>
-    1) <b>Bu telefonun kendi numarası</b> — yani QR'ı okuttuğun hat (&quot;Kendine mesaj&quot; sohbeti). Her zaman serbest.<br>
+    <b>LUNAHAN'a kim yazabilir?</b> <span style="font-size:12px;color:#9aa0ac">(yönetici ayarı)</span><br>
+    1) <b>Bağlanan hattın kendi numarası</b> — &quot;Kendine mesaj&quot; sohbeti. Her zaman serbest, ayar gerekmez.<br>
     2) Aşağıya eklediğin numaralar.<br>
-    Başka biri yazarsa Atlas <b>cevap vermez</b>, mesajı sessizce yok sayar.
-    <span style="color:#0f7a3d">Otomatik &quot;ilk yazan sahip olur&quot; kuralı yok.</span>
+    Başka biri yazarsa LUNAHAN <b>cevap vermez</b>, mesajı sessizce yok sayar.
   </div>
   <form method="post" style="margin-top:8px">
     <label style="font-size:13px;font-weight:600">İzinli numaralar (virgülle ayır, ülke koduyla)</label>
@@ -95,10 +98,18 @@ atlas_header('WhatsApp', 'wa', 'Atlas\'ı WhatsApp\'tan kullanmak için numaran�
   <div class="sub" style="margin-top:6px">
     Şu an izinli: <b><?= $waOwner ? htmlspecialchars($waOwner) : 'sadece hattın kendi numarası' ?></b>
   </div>
+<?php else: ?>
+  <div class="sub">
+    <b>LUNAHAN'a kim yazabilir?</b><br>
+    Bağladığın hattın <b>kendi numarası</b> otomatik olarak yetkilidir — WhatsApp'ta
+    &quot;Kendine mesaj&quot; sohbetinden yazdığın her şeye LUNAHAN cevap verir. Ayar yapmana gerek yok.
+    Başka biri yazarsa LUNAHAN cevap vermez.
+  </div>
+<?php endif; ?>
   <hr style="border:0;border-top:1px solid #eef0f7;margin:18px 0">
   <div id="pairbox">
     <h3 style="text-transform:none;font-size:15px;color:inherit;margin-bottom:2px">QR okutmak istemiyorsan: numarayla bağlan</h3>
-    <div class="sub">Kamera, kare okutma yok. Numaranı yaz, Atlas 8 haneli bir kod verir; o kodu telefonundaki
+    <div class="sub">Kamera, kare okutma yok. Numaranı yaz, LUNAHAN 8 haneli bir kod verir; o kodu telefonundaki
       WhatsApp'a girersin ve bağlanır.</div>
     <input type="text" id="pphone" placeholder="905321112233 (ülke koduyla, başında + yok)">
     <button type="button" id="pbtn">Bağlantı kodu al</button>
@@ -115,6 +126,7 @@ async function tick(){
       s.innerHTML='<span class="st ok">✓ Bağlı'+(j.number?' · +'+j.number:'')+'</span>';
       q.innerHTML=''; document.getElementById('steps').style.display='none';
       var pb=document.getElementById('pairbox'); if(pb) pb.style.display='none';
+      if(pairTimer){clearInterval(pairTimer);pairTimer=null;}
       a.innerHTML='<button onclick="logout()">Bağlantıyı kes</button>';
     } else if(j.status==='qr' && j.qr){
       s.innerHTML='<span class="st wait">QR bekleniyor — okut</span>';
@@ -129,24 +141,45 @@ async function tick(){
 async function logout(){ if(!confirm('WhatsApp bağlantısı kesilsin mi?'))return; await fetch('wa.php?api=logout'); setTimeout(tick,1500); }
 
 const pbtn = document.getElementById('pbtn');
-if (pbtn) pbtn.addEventListener('click', async function(){
-  const ph = (document.getElementById('pphone').value || '').replace(/[^0-9]/g,'');
+let pairTimer = null, pairLeft = 0, pairPhone = '';
+
+function pairRender(code){
   const out = document.getElementById('pout');
-  if (ph.length < 10) { out.innerHTML = '<span style="color:#b00">Numarayı ülke koduyla yaz: 905321112233</span>'; return; }
-  pbtn.disabled = true; out.textContent = 'Kod hazırlanıyor…';
+  out.innerHTML =
+    '<div style="font-size:34px;font-weight:700;letter-spacing:6px;margin:6px 0" id="pcode">'
+    + String(code).replace(/(.{4})(.{4})/, '$1-$2') + '</div>'
+    + '<div style="font-size:14px;line-height:1.7">Telefonda: <b>WhatsApp \u2192 Ayarlar \u2192 Ba\u011fl\u0131 cihazlar \u2192 Cihaz ba\u011fla</b>'
+    + ' \u2192 alttaki <b>\u201cTelefon numaras\u0131yla ba\u011flan\u201d</b> \u2192 bu kodu gir.<br>'
+    + '<span style="color:#6b7280">Kalan s\u00fcre: <b id="pleft">120</b> sn \u2014 s\u00fcre dolarsa kod kendi kendine yenilenir.</span></div>'
+    + '<button type="button" id="pnew" style="margin-top:8px;background:#f1f2f6;color:#333">Yeni kod al</button>';
+  const nb = document.getElementById('pnew');
+  if (nb) nb.addEventListener('click', () => pairRequest(pairPhone));
+  pairLeft = 120;
+  if (pairTimer) clearInterval(pairTimer);
+  pairTimer = setInterval(() => {
+    pairLeft--;
+    const el = document.getElementById('pleft');
+    if (el) el.textContent = pairLeft;
+    if (pairLeft <= 0) { clearInterval(pairTimer); pairTimer = null; pairRequest(pairPhone); }
+  }, 1000);
+}
+
+async function pairRequest(ph){
+  const out = document.getElementById('pout');
+  if (!ph || ph.length < 10) { out.innerHTML = '<span style="color:#b00">Numaray\u0131 \u00fclke koduyla yaz: 905321112233</span>'; return; }
+  pairPhone = ph;
+  if (pbtn) pbtn.disabled = true;
+  out.textContent = 'Kod haz\u0131rlan\u0131yor\u2026';
   try {
     const j = await (await fetch('wa.php?api=pair&phone=' + ph)).json();
-    if (j.code) {
-      out.innerHTML = '<div style="font-size:34px;font-weight:700;letter-spacing:6px;margin:6px 0">'
-        + String(j.code).replace(/(.{4})(.{4})/, '$1-$2') + '</div>'
-        + '<div style="font-size:14px;line-height:1.7">Şimdi o telefonda: <b>WhatsApp → Ayarlar → Bağlı cihazlar →'
-        + ' Cihaz bağla</b> → alttaki <b>“Telefon numarasıyla bağlan”</b> → bu kodu gir.<br>'
-        + '<span style="color:#6b7280">Kod birkaç dakika geçerli. Süre geçerse yeni kod al.</span></div>';
-    } else {
-      out.innerHTML = '<span style="color:#b00">' + (j.error || 'kod alınamadı') + '</span>';
-    }
-  } catch(e) { out.innerHTML = '<span style="color:#b00">bağlantı hatası</span>'; }
-  pbtn.disabled = false;
+    if (j.code) pairRender(j.code);
+    else out.innerHTML = '<span style="color:#b00">' + (j.error || 'kod al\u0131namad\u0131') + '</span>';
+  } catch(e) { out.innerHTML = '<span style="color:#b00">ba\u011flant\u0131 hatas\u0131</span>'; }
+  if (pbtn) pbtn.disabled = false;
+}
+
+if (pbtn) pbtn.addEventListener('click', function(){
+  pairRequest((document.getElementById('pphone').value || '').replace(/[^0-9]/g,''));
 });
 
 tick(); setInterval(tick, 3000);

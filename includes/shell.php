@@ -7,14 +7,14 @@
  */
 
 /**
- * Lunify Atlas — uygulama kabugu (shell)
+ * LUNAHAN — uygulama kabugu (shell)
  * Tasarim dili Lunify Aura/Nexo ile ayni: Inter, Tailwind primary paleti,
  * beyaz sol menu, lucide ikonlar, karanlik mod.  (Viktor, 2026-08-28)
  */
 require_once __DIR__ . '/i18n.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/onboarding.php';
-require_once __DIR__ . '/mod_realestate.php';
+/* 2026-09-09: emlak modulu LUNAHAN'dan cikarildi (kisisel asistan). Emlak = Lunify Anahtar. */
 
 function atlas_nav_items(array $u, string $active = ''): array {
     $L = atlas_lang();
@@ -27,13 +27,21 @@ function atlas_nav_items(array $u, string $active = ''): array {
         'guide'    => [$tr ? 'Kılavuz'        : 'Guide',     'book-open',      'guide.php'],
     ];
     /* Sektor modulu: emlak (kullanici bazli acilir) */
-    if (function_exists('re_enabled') ? re_enabled((int)($u['id'] ?? 0)) : false) {
-        $nav['emlak'] = [$tr ? 'Emlak' : 'Real estate', 'home', 'emlak.php'];
-    }
     $nav['wa'] = ['WhatsApp', 'message-circle', 'wa.php'];
+    if (!empty($u['is_admin'])) $nav['links'] = [$tr ? 'Bağlantılar' : 'Connections', 'link', 'links.php'];
     $nav['account'] = [$tr ? 'Hesabım' : 'Account', 'credit-card', 'account.php'];
-    if (!empty($u['is_admin'])) {
+    if (false) {   // Yonetim ayri kapidan: /yonetim.php (kullanici menusunde gorunmez)
         $nav['admin'] = [$tr ? 'Yönetim' : 'Admin', 'shield', 'admin.php'];
+    }
+    /* Modul ac/kapa (Viktor 2026-09-10, owner istegi): yonetici modulleri kapatabilir.
+       Genel liste  -> settings(user_id=0).modules_off ; kullanici bazli -> settings(user).modules_off
+       Yonetim (admin) ve Hesabim asla kapatilmaz. */
+    $offGlobal = array_filter(array_map('trim', explode(',', (string)gsetting('modules_off', ''))));
+    $offUser   = array_filter(array_map('trim', explode(',', (string)setting('modules_off', ''))));
+    $off = array_unique(array_merge($offGlobal, $offUser));
+    foreach ($off as $ok) {
+        if (in_array($ok, ['admin', 'account'], true)) continue;
+        unset($nav[$ok]);
     }
     $saved = json_decode((string)setting('sidebar_order', ''), true);
     if (is_array($saved) && $saved) {
@@ -41,6 +49,16 @@ function atlas_nav_items(array $u, string $active = ''): array {
         foreach ($saved as $k) { if (isset($nav[$k])) $ordered[$k] = $nav[$k]; }
         foreach ($nav as $k => $v) { if (!isset($ordered[$k])) $ordered[$k] = $v; }
         $nav = $ordered;
+    }
+    /* Yonetim ekraninda uygulama modulleri GIZLENIR (sahibin istegi 2026-09-04):
+       admin sadece yonetim + ayar niteligindeki ekranlari gorur. */
+    if ($active === 'admin' || ($active === 'links' && !empty($u['is_admin'])) || ($active === 'wa' && !empty($u['is_admin']) && ($_GET['adm'] ?? '') === '1')) {
+        $adm = [];
+        $adm['admin']   = [$tr ? 'Yönetim'  : 'Admin',    'shield',         'admin.php'];
+        $adm['wa']      = ['WhatsApp',                     'message-circle', 'wa.php'];
+        $adm['links']   = [$tr ? 'Bağlantılar' : 'Connections', 'link',       'links.php'];
+        $adm['back']    = [$tr ? '← Uygulamaya dön' : '← Back to app', 'arrow-left', 'app.php'];
+        return $adm;
     }
     if (function_exists('ob_show_nav') && ob_show_nav($active)) {
         $nav = ['start' => [$tr ? 'Başlangıç' : 'Getting started', 'rocket', 'getting-started.php']] + $nav;
@@ -53,16 +71,23 @@ function atlas_header(string $title, string $active = '', string $subtitle = '',
     $u = function_exists('current_user') ? (current_user() ?: []) : [];
     $nav = atlas_nav_items($u, $active);
     [, $obDone, $obTotal] = function_exists('ob_progress') ? ob_progress() : [null, 0, 0];
-    $logo = 'https://www.lunify.world/assets/lunify-lockup.png';
-    $logoDark = 'https://www.lunify.world/assets/lunify-lockup-dark.png';
+    $logo = 'assets/lunify-lockup.png';
+    $logoDark = 'assets/lunify-lockup-dark.png';
     $initial = mb_strtoupper(mb_substr(trim((string)($u['name'] ?? ($u['email'] ?? 'A'))), 0, 1, 'UTF-8'), 'UTF-8');
     ?><!doctype html>
 <html lang="<?= $L ?>" class="h-full">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= htmlspecialchars($title) ?> — Lunify Atlas</title>
-<link rel="icon" href="assets/lunify-lockup.png">
+<meta name="csrf-token" content="<?= htmlspecialchars(atlas_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+<title><?= htmlspecialchars($title) ?> — LUNAHAN</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LUNAHAN">
+<meta name="theme-color" content="#ffffff">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: {
@@ -77,6 +102,8 @@ if (localStorage.getItem('atlasDark') === 'true' || (!localStorage.getItem('atla
   document.documentElement.classList.add('dark');
 }
 </script>
+<link rel="manifest" href="manifest.php">
+<meta name="theme-color" content="#2563eb">
 </head>
 <body class="h-full bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased" style="font-family:Inter,system-ui,sans-serif">
 <div id="app" class="flex h-full">
@@ -88,7 +115,7 @@ if (localStorage.getItem('atlasDark') === 'true' || (!localStorage.getItem('atla
       <a href="app.php?lang=<?= $L ?>" class="flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
         <img src="<?= $logo ?>" alt="Lunify" class="h-12 w-auto dark:hidden object-contain">
         <img src="<?= $logoDark ?>" alt="Lunify" class="h-12 w-auto hidden dark:block object-contain">
-        <span class="text-[17px] font-bold text-gray-900 dark:text-gray-100 tracking-tight">Lunify Atlas</span>
+        <span class="text-[17px] font-bold text-gray-900 dark:text-gray-100 tracking-tight">LUNAHAN</span>
       </a>
       <button onclick="atlasSidebar(false)" class="lg:hidden absolute top-3 right-3 p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Kapat">
         <i class="icon-x" style="font-size:18px"></i>
@@ -129,9 +156,12 @@ if (localStorage.getItem('atlasDark') === 'true' || (!localStorage.getItem('atla
           <div class="text-sm font-medium text-gray-900 dark:text-white truncate"><?= htmlspecialchars((string)($u['name'] ?? '')) ?></div>
           <div class="text-[11px] text-gray-500 dark:text-gray-400 truncate"><?= htmlspecialchars((string)($u['email'] ?? '')) ?></div>
         </div>
-        <a href="app.php?logout=1&lang=<?= $L ?>" title="<?= t('app_logout') ?>" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-200">
-          <i class="icon-log-out" style="font-size:16px"></i>
-        </a>
+        <form method="post" action="app.php?lang=<?= $L ?>" class="inline">
+          <input type="hidden" name="logout" value="1">
+          <button type="submit" title="<?= t('app_logout') ?>" aria-label="<?= t('app_logout') ?>" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-200">
+            <i class="icon-log-out" style="font-size:16px"></i>
+          </button>
+        </form>
       </div>
     </div>
   </aside>
@@ -141,7 +171,7 @@ if (localStorage.getItem('atlasDark') === 'true' || (!localStorage.getItem('atla
       <button onclick="atlasSidebar(true)" class="p-2 -m-0.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Menu">
         <i class="icon-menu" style="font-size:20px"></i>
       </button>
-      <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">Lunify Atlas<?= $title !== '' ? ' · ' . htmlspecialchars($title) : '' ?></span>
+      <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">LUNAHAN<?= $title !== '' ? ' · ' . htmlspecialchars($title) : '' ?></span>
     </div>
     <div class="p-4 lg:p-6 flex-1 min-h-0 <?= $fullHeight ? 'flex flex-col' : '' ?>">
       <div class="atlas-page mx-auto w-full max-w-5xl <?= $fullHeight ? 'flex-1 min-h-0 flex flex-col' : '' ?>">
@@ -193,6 +223,27 @@ function atlasTheme(){
   var d=document.documentElement.classList.toggle('dark');
   localStorage.setItem('atlasDark', d ? 'true' : 'false');
 }
+</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(){});}</script>
+<script>
+(function(){
+  const meta=document.querySelector('meta[name="csrf-token"]'); const token=meta?meta.content:'';
+  document.querySelectorAll('form').forEach(function(f){
+    if((f.getAttribute('method')||'get').toLowerCase()!=='post') return;
+    if(!f.querySelector('input[name="_csrf"]')){const i=document.createElement('input');i.type='hidden';i.name='_csrf';i.value=token;f.appendChild(i);}
+  });
+  const original=window.fetch.bind(window);
+  window.fetch=function(input,init){
+    init=init||{}; const method=String(init.method || (input instanceof Request ? input.method : 'GET')).toUpperCase();
+    const url=new URL(input instanceof Request ? input.url : input,location.href);
+    if(url.origin===location.origin && !['GET','HEAD','OPTIONS'].includes(method)){
+      const headers=new Headers(input instanceof Request ? input.headers : undefined);
+      new Headers(init.headers||{}).forEach((v,k)=>headers.set(k,v)); headers.set('X-CSRF-Token',token);
+      init=Object.assign({},init,{headers});
+    }
+    return original(input,init);
+  };
+})();
 </script>
 </body></html>
 <?php }

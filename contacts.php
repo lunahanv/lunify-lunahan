@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — rehber */
+/** LUNAHAN — rehber */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -16,13 +16,13 @@ $U = require_login();
 $JS = [];
 foreach (['js_noaction','js_norem','js_nocontact','js_connerr'] as $k) $JS[substr($k,3)] = t($k);
 atlas_header(t('app_contacts'), 'contacts',
-  $L === 'tr' ? 'Atlas’ın tanıdığı kişiler; sohbette “… kişisini ekle” diyerek çoğaltabilirsin.' : 'People Atlas knows — add more by asking in chat.');
+  $L === 'tr' ? 'LUNAHAN’ın tanıdığı kişiler; sohbette “… kişisini ekle” diyerek çoğaltabilirsin.' : 'People LUNAHAN knows — add more by asking in chat.');
 ?>
 <section class="acard">
   <h3><?= $L === 'tr' ? 'WhatsApp rehberi' : 'WhatsApp contacts' ?></h3>
   <p class="muted"><?= $L === 'tr'
-     ? 'Bağlı WhatsApp hattındaki kişileri tek tıkla Atlas rehberine aktar; sonra “Ahmet’e mesaj at” demen yeter, numara yazmana gerek kalmaz.'
-     : 'Import the contacts of your connected WhatsApp line into Atlas.' ?></p>
+     ? 'Bağlı WhatsApp hattındaki kişileri tek tıkla LUNAHAN rehberine aktar; sonra “Ahmet’e mesaj at” demen yeter, numara yazmana gerek kalmaz.'
+     : 'Import the contacts of your connected WhatsApp line into LUNAHAN.' ?></p>
   <button id="wa-import" class="btn"><?= $L === 'tr' ? 'WhatsApp rehberini içe aktar' : 'Import WhatsApp contacts' ?></button>
   <span id="wa-import-msg" class="muted" style="margin-left:10px"></span>
 </section>
@@ -34,7 +34,7 @@ document.getElementById('wa-import').addEventListener('click', async function ()
   const b = this, m = document.getElementById('wa-import-msg');
   b.disabled = true; m.textContent = 'Aktarılıyor…';
   try {
-    const r = await fetch('api/wa.php?action=import_contacts');
+    const r = await fetch('api/wa.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'action=import_contacts'});
     const j = await r.json();
     if (j.ok) {
       m.textContent = j.found + ' kişi bulundu · ' + j.added + ' eklendi · ' + j.skipped + ' zaten vardı';

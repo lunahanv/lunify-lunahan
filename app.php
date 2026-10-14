@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — sohbet ekrani (sadece sohbet; ayarlar ayri sayfalarda) */
+/** LUNAHAN — sohbet ekrani (sadece sohbet; ayarlar ayri sayfalarda) */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/shell.php';
@@ -14,7 +14,8 @@ atlas_session();
 
 $L = atlas_lang();
 
-if (isset($_GET['logout'])) { $_SESSION = []; session_destroy(); header('Location: index.php?lang=' . $L); exit; }
+if (isset($_GET['logout'])) { http_response_code(405); exit('Method not allowed'); }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['logout'])) { $_SESSION = []; session_destroy(); header('Location: index.php?lang=' . $L); exit; }
 
 $U = current_user();
 if (!$U || $U['status'] !== 'active') { header('Location: login.php?lang=' . $L); exit; }
@@ -32,7 +33,7 @@ foreach (['js_greet','js_noaction','js_norem','js_nocontact','js_approve','js_re
 }
 
 atlas_header($L === 'tr' ? 'Sohbet' : 'Chat', 'chat',
-  $L === 'tr' ? 'Atlas asistanınız — normal cümlelerle iş yaptırın.' : 'Your Atlas assistant — get things done in plain language.', true);
+  $L === 'tr' ? 'LUNAHAN asistanınız — normal cümlelerle iş yaptırın.' : 'Your LUNAHAN assistant — get things done in plain language.', true);
 ?>
 <div class="chat-wrap">
 <aside class="conv-col">
@@ -43,9 +44,13 @@ atlas_header($L === 'tr' ? 'Sohbet' : 'Chat', 'chat',
   <div id="feed" class="feed"></div>
   <form id="cmdForm" class="composer">
     <input id="cmd" placeholder="<?= t('app_ph') ?>" autocomplete="off">
+    <input type="file" id="fileInput" multiple hidden
+           accept=".pdf,.png,.jpg,.jpeg,.webp,.heic,.txt,.csv,.md,.json,.mp3,.m4a,.ogg,.opus,.wav">
+    <button type="button" id="attach" class="mic" title="<?= $L === 'tr' ? 'Dosya ekle (PDF, fotoğraf, ses)' : 'Attach file (PDF, photo, audio)' ?>">📎</button>
     <button type="button" id="mic" class="mic" title="<?= t('app_mic') ?>">🎤</button>
     <button id="send"><?= t('app_send') ?></button>
   </form>
+  <div class="hint" id="attachHint"></div>
   <div class="hint" id="micHint"></div>
 </section>
 </div>

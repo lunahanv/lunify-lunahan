@@ -6,7 +6,7 @@
  * Unauthorized copying, distribution or reverse engineering is strictly prohibited.
  */
 
-/** Lunify Atlas — giriş / kayıt / şifremi unuttum */
+/** LUNAHAN — giriş / kayıt / şifremi unuttum */
 require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/includes/i18n.php';
 atlas_session();
@@ -14,18 +14,36 @@ $L = atlas_lang();
 if (current_user()) { header('Location: app.php?lang=' . $L); exit; }
 
 $mode = $_GET['mode'] ?? 'in';           // in | up | forgot
-$err = ''; $ok = '';
+$err = ''; $ok = ''; $resend = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $act = $_POST['act'] ?? '';
   if ($act === 'in') {
     $r = auth_login($_POST['email'] ?? '', $_POST['password'] ?? '');
     if ($r['ok']) { header('Location: app.php?lang=' . $L); exit; }
-    $err = $r['err'] === 'suspended' ? t('e_suspended') : t('e_bad'); $mode = 'in';
+    if ($r['err'] === 'unverified') {
+      $resend = 'verify.php?resend=1&email=' . urlencode(mb_strtolower(trim((string)($_POST['email'] ?? '')))) . '&lang=' . $L;
+      $err = ($L === 'en') ? 'Your e-mail is not confirmed yet. Check your inbox.'
+                           : 'E-posta adresin henüz doğrulanmadı. Posta kutunu kontrol et.';
+    } else {
+      if ($r['err'] === 'locked') {
+        $err = ($L === 'en') ? 'Too many failed sign-in attempts. For security, please wait 15 minutes and try again.'
+                             : 'Çok fazla başarısız giriş denemesi. Güvenlik için 15 dakika bekleyip tekrar deneyin.';
+      } else {
+        $err = $r['err'] === 'suspended' ? t('e_suspended') : t('e_bad');
+      }
+    }
+    $mode = 'in';
   } elseif ($act === 'up') {
     $r = auth_register($_POST['email'] ?? '', $_POST['password'] ?? '', trim($_POST['name'] ?? ''), $L);
-    if ($r['ok']) { auth_start_session($r['user']); header('Location: getting-started.php?lang=' . $L); exit; }
-    $err = t('e_' . $r['err']); $mode = 'up';
+    if ($r['ok']) {
+      $ok = ($L === 'en')
+        ? 'Almost done — we sent a confirmation link to your e-mail. Click it to activate your account.'
+        : 'Son bir adım: e-posta adresine doğrulama bağlantısı gönderdik. Hesabını aktifleştirmek için bağlantıya tıkla.';
+      $mode = 'in';
+    } else {
+      $err = t('e_' . $r['err']); $mode = 'up';
+    }
   } elseif ($act === 'forgot') {
     $mode = 'forgot';
     $u = auth_find_by_email($_POST['email'] ?? '');
@@ -34,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $token = auth_reset_create($u);
       $link = rtrim(APP_URL, '/') . '/reset.php?token=' . $token . '&lang=' . $L;
       $html = '<div style="font-family:Inter,Arial,sans-serif;max-width:520px">'
-        . '<h2 style="color:#4b3f8f">Lunify Atlas</h2>'
-        . '<p>' . ($L === 'en' ? 'We received a password reset request for your Atlas account.'
-                              : 'Atlas hesabın için şifre sıfırlama talebi aldık.') . '</p>'
+        . '<h2 style="color:#4b3f8f">LUNAHAN</h2>'
+        . '<p>' . ($L === 'en' ? 'We received a password reset request for your LUNAHAN account.'
+                              : 'LUNAHAN hesabın için şifre sıfırlama talebi aldık.') . '</p>'
         . '<p><a href="' . htmlspecialchars($link) . '" style="background:#c9a227;color:#111;padding:12px 20px;'
         . 'border-radius:10px;text-decoration:none;font-weight:600">'
         . ($L === 'en' ? 'Set a new password' : 'Yeni şifre belirle') . '</a></p>'
@@ -52,7 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $gready = google_oauth_ready();
 if ($gready) { $_SESSION['gstate'] = $_SESSION['gstate'] ?? bin2hex(random_bytes(16)); }
-?><!doctype html><html lang="<?= $L ?>"><head><meta charset="utf-8">
+?><!doctype html><html lang="<?= $L ?>"><head>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="LUNAHAN">
+<meta name="theme-color" content="#ffffff"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= t('login_title') ?></title>
 <link rel="icon" href="assets/lunify-lockup.png">
@@ -62,19 +87,23 @@ if ($gready) { $_SESSION['gstate'] = $_SESSION['gstate'] ?? bin2hex(random_bytes
 <body class="login-bg">
 <div class="lang-corner"><?= atlas_lang_switch() ?></div>
 <div class="login-card">
-  <div class="brand"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify"><span class="tag">Atlas</span></div>
+  <div class="brand"><img class="logo" src="assets/lunify-lockup.png" alt="Lunify"><span class="tag">LUNAHAN</span></div>
   <?php if ($mode !== 'forgot'): ?>
   <div class="tabs">
     <a class="<?= $mode==='in'?'on':'' ?>" href="?mode=in&lang=<?= $L ?>"><?= t('login_tab_in') ?></a>
     <a class="<?= $mode==='up'?'on':'' ?>" href="?mode=up&lang=<?= $L ?>"><?= t('login_tab_up') ?></a>
   </div>
   <?php endif; ?>
-  <?php if ($err) echo '<div class="err">'.htmlspecialchars($err).'</div>'; ?>
+  <?php if ($err) { echo '<div class="err">'.htmlspecialchars($err);
+    if ($resend !== '') echo ' <a href="'.htmlspecialchars($resend).'" style="color:inherit;text-decoration:underline">'
+      .(($L === 'en') ? 'Send the link again' : 'Bağlantıyı tekrar gönder').'</a>';
+    echo '</div>'; } ?>
   <?php if ($ok)  echo '<div class="okmsg">'.htmlspecialchars($ok).'</div>'; ?>
 
   <?php if ($mode === 'in'): ?>
     <p class="muted"><?= t('login_sub') ?></p>
     <form method="post">
+      <input type="hidden" name="_csrf" value="<?= htmlspecialchars(atlas_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="act" value="in">
       <input type="email" name="email" placeholder="<?= t('login_email') ?>" required autofocus>
       <input type="password" name="password" placeholder="<?= t('login_pass') ?>" required>
@@ -85,6 +114,7 @@ if ($gready) { $_SESSION['gstate'] = $_SESSION['gstate'] ?? bin2hex(random_bytes
   <?php elseif ($mode === 'up'): ?>
     <p class="muted"><?= t('login_signup_note') ?></p>
     <form method="post">
+      <input type="hidden" name="_csrf" value="<?= htmlspecialchars(atlas_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="act" value="up">
       <input type="text" name="name" placeholder="<?= t('login_name') ?>">
       <input type="email" name="email" placeholder="<?= t('login_email') ?>" required>
@@ -95,6 +125,7 @@ if ($gready) { $_SESSION['gstate'] = $_SESSION['gstate'] ?? bin2hex(random_bytes
   <?php else: ?>
     <p class="muted"><?= t('fp_sub') ?></p>
     <form method="post">
+      <input type="hidden" name="_csrf" value="<?= htmlspecialchars(atlas_csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="act" value="forgot">
       <input type="email" name="email" placeholder="<?= t('login_email') ?>" required autofocus>
       <button type="submit"><?= t('fp_btn') ?></button>
